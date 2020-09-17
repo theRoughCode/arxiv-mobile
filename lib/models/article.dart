@@ -11,7 +11,7 @@ class Article {
   final String doiUrl;
   final String comment;
   final String journalRef;
-  final String category;
+  final List<String> categories;
   final String articleUrl;
   final String pdfUrl;
 
@@ -26,7 +26,7 @@ class Article {
     this.doiUrl,
     this.comment,
     this.journalRef,
-    this.category,
+    this.categories,
     this.articleUrl,
     this.pdfUrl,
   );
@@ -42,7 +42,7 @@ class Article {
         doiUrl = json['doiUrl'],
         comment = json['comment'],
         journalRef = json['journalRef'],
-        category = json['category'],
+        categories = json['categories'],
         articleUrl = json['articleUrl'],
         pdfUrl = json['pdfUrl'];
 
@@ -78,7 +78,10 @@ class Article {
       'doiUrl': doiUrl,
       'comment': entry.getElement('arxiv:comment')?.text,
       'journalRef': entry.getElement('arxiv:journal_ref')?.text,
-      'category': entry.getElement('category').getAttribute('term'),
+      'categories': entry
+          .findElements('category')
+          .map((node) => node.getAttribute('term'))
+          .toList(),
       'articleUrl': articleUrl,
       'pdfUrl': pdfUrl,
     };

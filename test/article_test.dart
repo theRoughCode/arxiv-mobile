@@ -17,7 +17,7 @@ void main() {
       'doiUrl': 'http://dx.doi.org/10.1103/PhysRevB.61.13484',
       'comment': '8 pages, 10 figures, to appear in Phys. Rev. B',
       'journalRef': 'Phys. Rev. B 61, 13484 (2000)',
-      'category': 'cond-mat.mtrl-sci',
+      'categories': ['cond-mat.mtrl-sci'],
       'articleUrl': 'http://arxiv.org/abs/cond-mat/0002322v1',
       'pdfUrl': 'http://arxiv.org/pdf/cond-mat/0002322v1',
     };
@@ -36,7 +36,7 @@ void main() {
     expect(article.doiUrl, 'http://dx.doi.org/10.1103/PhysRevB.61.13484');
     expect(article.comment, '8 pages, 10 figures, to appear in Phys. Rev. B');
     expect(article.journalRef, 'Phys. Rev. B 61, 13484 (2000)');
-    expect(article.category, 'cond-mat.mtrl-sci');
+    expect(article.categories, ['cond-mat.mtrl-sci']);
     expect(article.articleUrl, 'http://arxiv.org/abs/cond-mat/0002322v1');
     expect(article.pdfUrl, 'http://arxiv.org/pdf/cond-mat/0002322v1');
   });
@@ -82,7 +82,7 @@ void main() {
     expect(article.doiUrl, 'http://dx.doi.org/10.1103/PhysRevB.61.13484');
     expect(article.comment, '8 pages, 10 figures, to appear in Phys. Rev. B');
     expect(article.journalRef, 'Phys. Rev. B 61, 13484 (2000)');
-    expect(article.category, 'cond-mat.mtrl-sci');
+    expect(article.categories, ['cond-mat.mtrl-sci']);
     expect(article.articleUrl, 'http://arxiv.org/abs/cond-mat/0002322v1');
     expect(article.pdfUrl, 'http://arxiv.org/pdf/cond-mat/0002322v1');
   });

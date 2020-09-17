@@ -1,4 +1,4 @@
-import 'package:arxiv_mobile/models/category.dart';
+import 'package:arxiv_mobile/models/category2.dart';
 import 'package:arxiv_mobile/themes/explore_theme.dart';
 import 'package:arxiv_mobile/themes/utils.dart';
 import 'package:flutter/material.dart';
@@ -41,9 +41,9 @@ class _PopularListViewState extends State<PopularListView>
               physics: const BouncingScrollPhysics(),
               scrollDirection: Axis.vertical,
               children: List<Widget>.generate(
-                Category.popularList.length,
+                Category2.popularList.length,
                 (int index) {
-                  final int count = Category.popularList.length;
+                  final int count = Category2.popularList.length;
                   final Animation<double> animation =
                       Tween<double>(begin: 0.0, end: 1.0).animate(
                     CurvedAnimation(
@@ -57,7 +57,7 @@ class _PopularListViewState extends State<PopularListView>
                     callback: () {
                       widget.callBack();
                     },
-                    category: Category.popularList[index],
+                    category: Category2.popularList[index],
                     animation: animation,
                     animationController: animationController,
                   );
@@ -87,7 +87,7 @@ class CategoryView extends StatelessWidget {
       : super(key: key);
 
   final VoidCallback callback;
-  final Category category;
+  final Category2 category;
   final AnimationController animationController;
   final Animation<dynamic> animation;
 

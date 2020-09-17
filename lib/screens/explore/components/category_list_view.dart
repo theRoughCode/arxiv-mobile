@@ -1,4 +1,4 @@
-import 'package:arxiv_mobile/models/category.dart';
+import 'package:arxiv_mobile/models/category2.dart';
 import 'package:arxiv_mobile/themes/explore_theme.dart';
 import 'package:arxiv_mobile/themes/utils.dart';
 import 'package:flutter/material.dart';
@@ -43,12 +43,12 @@ class _CategoryListViewState extends State<CategoryListView>
               return ListView.builder(
                 padding: const EdgeInsets.only(
                     top: 0, bottom: 0, right: 16, left: 16),
-                itemCount: Category.categoryList.length,
+                itemCount: Category2.categoryList.length,
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (BuildContext context, int index) {
-                  final int count = Category.categoryList.length > 10
+                  final int count = Category2.categoryList.length > 10
                       ? 10
-                      : Category.categoryList.length;
+                      : Category2.categoryList.length;
                   final Animation<double> animation =
                       Tween<double>(begin: 0.0, end: 1.0).animate(
                           CurvedAnimation(
@@ -58,7 +58,7 @@ class _CategoryListViewState extends State<CategoryListView>
                   animationController.forward();
 
                   return CategoryView(
-                    category: Category.categoryList[index],
+                    category: Category2.categoryList[index],
                     animation: animation,
                     animationController: animationController,
                     callback: () {
@@ -85,7 +85,7 @@ class CategoryView extends StatelessWidget {
       : super(key: key);
 
   final VoidCallback callback;
-  final Category category;
+  final Category2 category;
   final AnimationController animationController;
   final Animation<dynamic> animation;
 
