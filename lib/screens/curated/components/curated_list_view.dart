@@ -15,6 +15,8 @@ class CuratedListView extends StatelessWidget {
   final Article article;
   final AnimationController animationController;
   final Animation<dynamic> animation;
+  static TextTheme textTheme =
+      CuratedListTheme.buildLightTheme().primaryTextTheme;
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +28,12 @@ class CuratedListView extends StatelessWidget {
           child: Transform(
             transform: Matrix4.translationValues(
                 0.0, 50 * (1.0 - animation.value), 0.0),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: InkWell(
-                splashColor: Colors.transparent,
-                onTap: () {
-                  callback();
-                },
-                child: _buildCard(),
-              ),
+            child: InkWell(
+              splashColor: Colors.transparent,
+              onTap: () {
+                callback();
+              },
+              child: _buildCard(),
             ),
           ),
         );
@@ -43,6 +42,12 @@ class CuratedListView extends StatelessWidget {
   }
 
   Widget _buildCard() {
+    final authorsStr = article.authors.map((a) {
+      final names = a.split(' ').take(2).toList();
+      if (names.length < 2 || names[1].length == 0) return names.join('');
+      return "${names[0]} ${names[1][0].toUpperCase()}.";
+    }).join(', ');
+
     return Card(
         child: InkWell(
             splashColor:
@@ -51,15 +56,29 @@ class CuratedListView extends StatelessWidget {
               print("Title: ${article.title}");
             },
             child: Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 8),
-                child: ListTile(
-                  title: Text(article.title),
-                  subtitle: Text(
-                    article.summary,
-                    textAlign: TextAlign.left,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ))));
+                padding: const EdgeInsets.fromLTRB(12, 12, 6, 6),
+                child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(article.title, style: textTheme.headline1),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2, bottom: 4),
+                        child: Text(
+                          authorsStr,
+                          style: textTheme.subtitle2,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2, bottom: 4),
+                        child: Text(article.summary,
+                            textAlign: TextAlign.justify,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 12.0)),
+                      ),
+                      Text(article.categories.join(', '),
+                          style: textTheme.subtitle2),
+                    ]))));
   }
 }

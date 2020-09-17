@@ -69,21 +69,23 @@ class Article {
           .text
           ?.trim()
           ?.replaceFirst('http://arxiv.org/abs/', ''),
-      'updated': DateTime.parse(entry.getElement('updated').text?.trim()),
-      'published': DateTime.parse(entry.getElement('published').text?.trim()),
-      'title': entry.getElement('title').text?.trim(),
-      'summary': entry.getElement('summary').text?.trim(),
+      'updated': DateTime.parse(_processText(entry.getElement('updated').text)),
+      'published':
+          DateTime.parse(_processText(entry.getElement('published').text)),
+      'title': _processText(entry.getElement('title').text),
+      'summary': _processText(entry.getElement('summary').text),
       'authors': entry
           .findElements('author')
-          .map((node) => node.getElement('name').text?.trim())
+          .map((node) => _processText(node.getElement('name').text))
           .toList(),
-      'doi': entry.getElement('arxiv:doi')?.text?.trim(),
+      'doi': _processText(entry.getElement('arxiv:doi')?.text),
       'doiUrl': doiUrl,
-      'comment': entry.getElement('arxiv:comment')?.text?.trim(),
-      'journalRef': entry.getElement('arxiv:journal_ref')?.text?.trim(),
+      'comment': _processText(entry.getElement('arxiv:comment')?.text),
+      'journalRef': _processText(entry.getElement('arxiv:journal_ref')?.text),
       'categories': entry
           .findElements('category')
           .map((node) => node.getAttribute('term'))
+          .where((cat) => cat.startsWith(new RegExp(r'[A-Za-z]')))
           .toList(),
       'articleUrl': articleUrl,
       'pdfUrl': pdfUrl,
@@ -92,3 +94,6 @@ class Article {
     return Article.fromJson(json);
   }
 }
+
+String _processText(String text) =>
+    text?.trim()?.replaceAll('\n', ' ')?.replaceAll(new RegExp('\\s\\s+'), ' ');
