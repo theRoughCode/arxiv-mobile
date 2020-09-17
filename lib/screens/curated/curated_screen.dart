@@ -1,5 +1,6 @@
-import 'package:arxiv_mobile/models/curated_list_data.dart';
+import 'package:arxiv_mobile/models/article.dart';
 import 'package:arxiv_mobile/screens/curated/components/curated_list_view.dart';
+import 'package:arxiv_mobile/services/arxiv_scaper.dart';
 import 'package:arxiv_mobile/themes/curated_list_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -15,7 +16,7 @@ class CuratedListScreen extends StatefulWidget {
 class _CuratedListScreenState extends State<CuratedListScreen>
     with TickerProviderStateMixin {
   AnimationController animationController;
-  List<CuratedListData> curatedList = CuratedListData.curatedList;
+  List<Article> curatedList = [];
   final ScrollController _scrollController = ScrollController();
 
   DateTime startDate = DateTime.now();
@@ -26,11 +27,14 @@ class _CuratedListScreenState extends State<CuratedListScreen>
     animationController = AnimationController(
         duration: const Duration(milliseconds: 1000), vsync: this);
     super.initState();
+    getData();
   }
 
-  Future<bool> getData() async {
-    await Future<dynamic>.delayed(const Duration(milliseconds: 200));
-    return true;
+  Future<void> getData() async {
+    final results = await ArxivScraper.fetchAllArticles();
+    setState(() {
+      curatedList = results;
+    });
   }
 
   @override
@@ -79,31 +83,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
                       ),
                     ];
                   },
-                  body: Container(
-                    color: CuratedListTheme.buildLightTheme().backgroundColor,
-                    child: ListView.builder(
-                      itemCount: curatedList.length,
-                      padding: const EdgeInsets.only(top: 8),
-                      scrollDirection: Axis.vertical,
-                      itemBuilder: (BuildContext context, int index) {
-                        final int count =
-                            curatedList.length > 10 ? 10 : curatedList.length;
-                        final Animation<double> animation =
-                            Tween<double>(begin: 0.0, end: 1.0).animate(
-                                CurvedAnimation(
-                                    parent: animationController,
-                                    curve: Interval((1 / count) * index, 1.0,
-                                        curve: Curves.fastOutSlowIn)));
-                        animationController.forward();
-                        return CuratedListView(
-                          callback: () {},
-                          curatedData: curatedList[index],
-                          animation: animation,
-                          animationController: animationController,
-                        );
-                      },
-                    ),
-                  ),
+                  body: getListUI(),
                 ),
               ),
             ],
@@ -114,81 +94,32 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   }
 
   Widget getListUI() {
-    return Container(
-      decoration: BoxDecoration(
-        color: CuratedListTheme.buildLightTheme().backgroundColor,
-        boxShadow: <BoxShadow>[
-          BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              offset: const Offset(0, -2),
-              blurRadius: 8.0),
-        ],
-      ),
-      child: Column(
-        children: <Widget>[
-          Container(
-            height: MediaQuery.of(context).size.height - 156 - 50,
-            child: FutureBuilder<bool>(
-              future: getData(),
-              builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
-                if (!snapshot.hasData) {
-                  return const SizedBox();
-                } else {
-                  return ListView.builder(
-                    itemCount: curatedList.length,
-                    scrollDirection: Axis.vertical,
-                    itemBuilder: (BuildContext context, int index) {
-                      final int count =
-                          curatedList.length > 10 ? 10 : curatedList.length;
-                      final Animation<double> animation =
-                          Tween<double>(begin: 0.0, end: 1.0).animate(
-                              CurvedAnimation(
-                                  parent: animationController,
-                                  curve: Interval((1 / count) * index, 1.0,
-                                      curve: Curves.fastOutSlowIn)));
-                      animationController.forward();
-
-                      return CuratedListView(
-                        callback: () {},
-                        curatedData: curatedList[index],
-                        animation: animation,
-                        animationController: animationController,
-                      );
-                    },
-                  );
-                }
-              },
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget getHotelViewList() {
-    final List<Widget> curatedListViews = <Widget>[];
-    for (int i = 0; i < curatedList.length; i++) {
-      final int count = curatedList.length;
-      final Animation<double> animation =
-          Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(
-          parent: animationController,
-          curve: Interval((1 / count) * i, 1.0, curve: Curves.fastOutSlowIn),
-        ),
-      );
-      curatedListViews.add(
-        CuratedListView(
-          callback: () {},
-          curatedData: curatedList[i],
-          animation: animation,
-          animationController: animationController,
-        ),
-      );
+    if (curatedList.length == 0) {
+      return Center(child: CircularProgressIndicator());
     }
-    animationController.forward();
-    return Column(
-      children: curatedListViews,
-    );
+    return RefreshIndicator(
+        child: ListView.builder(
+          itemCount: curatedList.length,
+          padding: const EdgeInsets.only(top: 8),
+          scrollDirection: Axis.vertical,
+          itemBuilder: (BuildContext context, int index) {
+            final int count = curatedList.length > 10 ? 10 : curatedList.length;
+            final Animation<double> animation =
+                Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+                    parent: animationController,
+                    curve: Interval((1 / count) * index, 1.0,
+                        curve: Curves.fastOutSlowIn)));
+            animationController.forward();
+
+            return CuratedListView(
+              callback: () {},
+              article: curatedList[index],
+              animation: animation,
+              animationController: animationController,
+            );
+          },
+        ),
+        onRefresh: getData);
   }
 
   Widget getSearchBarUI() {
@@ -269,6 +200,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   }
 
   Widget getFilterBarUI() {
+    final numArticlesFoundString = '${curatedList.length} articles found';
     return Stack(
       children: <Widget>[
         Positioned(
@@ -299,7 +231,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      '530 articles found',
+                      numArticlesFoundString,
                       style: TextStyle(
                         fontWeight: FontWeight.w100,
                         fontSize: 16,

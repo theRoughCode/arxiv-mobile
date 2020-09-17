@@ -64,20 +64,23 @@ class Article {
     });
 
     Map<String, dynamic> json = {
-      'id':
-          entry.getElement('id').text.replaceFirst('http://arxiv.org/abs/', ''),
-      'updated': DateTime.parse(entry.getElement('updated').text),
-      'published': DateTime.parse(entry.getElement('published').text),
-      'title': entry.getElement('title').text,
-      'summary': entry.getElement('summary').text,
+      'id': entry
+          .getElement('id')
+          .text
+          ?.trim()
+          ?.replaceFirst('http://arxiv.org/abs/', ''),
+      'updated': DateTime.parse(entry.getElement('updated').text?.trim()),
+      'published': DateTime.parse(entry.getElement('published').text?.trim()),
+      'title': entry.getElement('title').text?.trim(),
+      'summary': entry.getElement('summary').text?.trim(),
       'authors': entry
           .findElements('author')
-          .map((node) => node.getElement('name').text)
+          .map((node) => node.getElement('name').text?.trim())
           .toList(),
-      'doi': entry.getElement('arxiv:doi')?.text,
+      'doi': entry.getElement('arxiv:doi')?.text?.trim(),
       'doiUrl': doiUrl,
-      'comment': entry.getElement('arxiv:comment')?.text,
-      'journalRef': entry.getElement('arxiv:journal_ref')?.text,
+      'comment': entry.getElement('arxiv:comment')?.text?.trim(),
+      'journalRef': entry.getElement('arxiv:journal_ref')?.text?.trim(),
       'categories': entry
           .findElements('category')
           .map((node) => node.getAttribute('term'))
