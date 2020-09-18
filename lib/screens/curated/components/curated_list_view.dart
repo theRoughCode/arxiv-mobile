@@ -49,36 +49,40 @@ class CuratedListView extends StatelessWidget {
     }).join(', ');
 
     return Card(
+        margin: const EdgeInsets.only(top: 8),
+        shape: BeveledRectangleBorder(),
         child: InkWell(
             splashColor:
-                CuratedListTheme.buildLightTheme().primaryColor.withAlpha(25),
+              CuratedListTheme.buildLightTheme().primaryColor.withAlpha(25),
             onTap: () {
               print("Title: ${article.title}");
             },
             child: Padding(
-                padding: const EdgeInsets.fromLTRB(12, 12, 6, 6),
-                child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(article.title, style: textTheme.headline1),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2, bottom: 4),
-                        child: Text(
-                          authorsStr,
-                          style: textTheme.subtitle2,
-                        ),
+              padding: const EdgeInsets.fromLTRB(12, 12, 6, 6),
+              child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(article.title, style: textTheme.headline1),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2, bottom: 4),
+                      child: Text(
+                        authorsStr,
+                        style: textTheme.subtitle2,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2, bottom: 4),
-                        child: Text(article.summary,
-                            textAlign: TextAlign.justify,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(fontSize: 12.0)),
-                      ),
-                      Text(article.categories.join(', '),
-                          style: textTheme.subtitle2),
-                    ]))));
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2, bottom: 4),
+                      child: Text(article.summary,
+                          textAlign: TextAlign.justify,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 12.0)),
+                    ),
+                    Text(article.categories.join(', '),
+                        style: textTheme.subtitle2),
+                  ]))));
   }
 }

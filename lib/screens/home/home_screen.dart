@@ -43,8 +43,9 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: Center(
-        child: _screens.elementAt(_selectedIndex),
+      body: IndexedStack(
+        children: _screens,
+        index: _selectedIndex,
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
