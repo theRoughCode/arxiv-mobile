@@ -100,102 +100,101 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
               child: Padding(
                 padding: EdgeInsets.only(
                   top: 0,
-                  right: 24,
-                  left: 24,
+                  right: 20,
+                  left: 20,
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                                text: widget.article.id,
-                                style: DetailsTheme.caption.copyWith(
-                                    color: Colors.blue[300],
-                                    decoration: TextDecoration.underline),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    launch(widget.article.articleUrl);
-                                  }),
-                            TextSpan(
-                              text: " · " +
-                                  DateFormat('dd MMM yyyy')
-                                      .format(widget.article.updated),
-                              style: DetailsTheme.caption,
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
-                    Text(
-                      widget.article.title,
-                      textAlign: TextAlign.left,
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 20,
-                        color: DetailsTheme.darkerText,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8, top: 8),
-                      child: Text(
-                        widget.article.authors.join(', '),
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w200,
-                          fontSize: 15,
-                          letterSpacing: 0.27,
-                          color: DetailsTheme.nearlyBlue,
-                        ),
-                      ),
-                    ),
-                    AnimatedOpacity(
-                      duration: const Duration(milliseconds: 500),
-                      opacity: opacity1,
-                      child: Row(
-                        children: widget.article.categories
-                            .map(
-                              (cat) => Padding(
-                                padding: const EdgeInsets.only(right: 10),
-                                child: Chip(
-                                  label: Text(
-                                    cat,
-                                    style: DetailsTheme.chip,
-                                  ),
-                                  backgroundColor: Category.getColour(cat),
-                                  labelPadding:
-                                      EdgeInsets.only(left: 6, right: 6),
-                                ),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ),
                     Expanded(
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 500),
-                        opacity: opacity2,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 16, bottom: 16),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            physics: BouncingScrollPhysics(),
-                            child: Text(
-                              widget.article.summary,
-                              textAlign: TextAlign.justify,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w200,
-                                fontSize: 14,
-                                letterSpacing: 0.27,
-                                color: DetailsTheme.grey,
+                      child: ListView(
+                        shrinkWrap: true,
+                        physics: BouncingScrollPhysics(),
+                        padding: const EdgeInsets.all(0),
+                        children: <Widget>[
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                      text: widget.article.id,
+                                      style: DetailsTheme.caption.copyWith(
+                                          color: Colors.blue[300],
+                                          decoration: TextDecoration.underline),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          launch(widget.article.articleUrl);
+                                        }),
+                                  TextSpan(
+                                    text: " · " +
+                                        DateFormat('dd MMM yyyy')
+                                            .format(widget.article.updated),
+                                    style: DetailsTheme.caption,
+                                  )
+                                ],
                               ),
                             ),
                           ),
-                        ),
+                          Text(
+                            widget.article.title,
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 20,
+                              color: DetailsTheme.darkerText,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8, top: 8),
+                            child: Text(
+                              widget.article.authors.join(', '),
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w200,
+                                fontSize: 15,
+                                letterSpacing: 0.27,
+                                color: DetailsTheme.nearlyBlue,
+                              ),
+                            ),
+                          ),
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 500),
+                            opacity: opacity1,
+                            child: Row(
+                              children: widget.article.categories
+                                  .map(
+                                    (cat) => Padding(
+                                      padding: const EdgeInsets.only(right: 10),
+                                      child: Chip(
+                                        label: Text(
+                                          cat,
+                                          style: DetailsTheme.chip,
+                                        ),
+                                        backgroundColor:
+                                            Category.getColour(cat),
+                                        labelPadding:
+                                            EdgeInsets.only(left: 6, right: 6),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                          ),
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 500),
+                            opacity: opacity2,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 8, bottom: 8),
+                              child: Text(
+                                widget.article.summary,
+                                textAlign: TextAlign.left,
+                                style: DetailsTheme.body2,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     AnimatedOpacity(
