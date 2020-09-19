@@ -1,6 +1,6 @@
 import 'package:arxiv_mobile/models/article.dart';
 import 'package:test/test.dart';
-import 'package:xml/xml.dart';
+import 'package:xml/xml.dart' as xml;
 
 void main() {
   test('Conversion from JSON mapping', () {
@@ -42,7 +42,7 @@ void main() {
   });
 
   test('Conversion from XML entry', () {
-    final xml = '''<entry>
+    final entryXml = '''<entry>
         <id>http://arxiv.org/abs/cond-mat/0002322v1</id>
         <updated>2000-02-21T11:53:06Z</updated>
         <published>2000-02-21T11:54:06Z</published>
@@ -67,7 +67,7 @@ void main() {
         <category term="cond-mat.mtrl-sci" scheme="http://arxiv.org/schemas/atom"/>
     </entry>''';
 
-    final entry = XmlDocument.parse(xml).getElement('entry');
+    final entry = xml.parse(entryXml).findElements('entry').first;
     final article = Article.fromEntry(entry);
 
     expect(article.id, 'cond-mat/0002322v1');

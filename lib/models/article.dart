@@ -65,23 +65,26 @@ class Article {
 
     Map<String, dynamic> json = {
       'id': entry
-          .getElement('id')
+          .findElements('id')
+          .first
           .text
           ?.trim()
           ?.replaceFirst('http://arxiv.org/abs/', ''),
-      'updated': DateTime.parse(_processText(entry.getElement('updated').text)),
+      'updated':
+          DateTime.parse(_getTextFromElements(entry.findElements('updated'))),
       'published':
-          DateTime.parse(_processText(entry.getElement('published').text)),
-      'title': _processText(entry.getElement('title').text),
-      'summary': _processText(entry.getElement('summary').text),
+          DateTime.parse(_getTextFromElements(entry.findElements('published'))),
+      'title': _getTextFromElements(entry.findElements('title')),
+      'summary': _getTextFromElements(entry.findElements('summary')),
       'authors': entry
           .findElements('author')
-          .map((node) => _processText(node.getElement('name').text))
+          .map((node) => _getTextFromElements(node.findElements('name')))
           .toList(),
-      'doi': _processText(entry.getElement('arxiv:doi')?.text),
+      'doi': _getTextFromElements(entry.findElements('arxiv:doi')),
       'doiUrl': doiUrl,
-      'comment': _processText(entry.getElement('arxiv:comment')?.text),
-      'journalRef': _processText(entry.getElement('arxiv:journal_ref')?.text),
+      'comment': _getTextFromElements(entry.findElements('arxiv:comment')),
+      'journalRef':
+          _getTextFromElements(entry.findElements('arxiv:journal_ref')),
       'categories': entry
           .findElements('category')
           .map((node) => node.getAttribute('term'))
@@ -95,5 +98,10 @@ class Article {
   }
 }
 
-String _processText(String text) =>
-    text?.trim()?.replaceAll('\n', ' ')?.replaceAll(new RegExp('\\s\\s+'), ' ');
+String _getTextFromElements(Iterable<XmlElement> elems) =>
+    (elems.length == 0 || elems.first == null)
+        ? null
+        : elems.first.text
+            .trim()
+            .replaceAll('\n', ' ')
+            ?.replaceAll(new RegExp('\\s\\s+'), ' ');

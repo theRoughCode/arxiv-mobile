@@ -1,14 +1,18 @@
 import 'package:arxiv_mobile/models/article.dart';
 import 'package:arxiv_mobile/models/arxiv_query.dart';
 import 'package:arxiv_mobile/models/category_group.dart';
-import 'package:xml/xml.dart';
+import 'package:xml/xml.dart' as xml;
 
 class ArxivScraper {
   static const MAX_RESULTS = 10;
 
   // Fetch all articles given list of categories
-  static Future<List<Article>> fetchArticlesFromCategories(List<String> categories,
-      {sortBy = SortBy.lastUpdatedDate, sortOrder, start, maxResults}) async {
+  static Future<List<Article>> fetchArticlesFromCategories(
+      List<String> categories,
+      {sortBy = SortBy.lastUpdatedDate,
+      sortOrder,
+      start,
+      maxResults}) async {
     final searchQuery = categories.join("+OR+");
     final response = await ArxivQuery(
             query: searchQuery,
@@ -17,8 +21,9 @@ class ArxivScraper {
             start: start,
             maxResults: maxResults)
         .fetch();
-
-    return XmlDocument.parse(response)
+    
+    return xml
+        .parse(response)
         .findAllElements('entry')
         .map((e) => Article.fromEntry(e))
         .toList();
@@ -39,7 +44,7 @@ class ArxivScraper {
   // Fetch an article by its ID
   static Future<Article> fetchArticleById(String id) async {
     final response = await ArxivQuery(idList: [id]).fetch();
-    final entry = XmlDocument.parse(response).findAllElements('entry').first;
+    final entry = xml.parse(response).findAllElements('entry').first;
     return Article.fromEntry(entry);
   }
 }
