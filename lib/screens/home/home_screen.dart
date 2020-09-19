@@ -12,9 +12,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
+  static final ScrollController _curatedListController = ScrollController();
 
   static List<Widget> _screens = <Widget>[
-    CuratedListScreen(),
+    CuratedListScreen(controller: _curatedListController),
     ExploreScreen(),
     Text(
       'Favourites',
@@ -23,6 +24,14 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   void _onItemTapped(int index) {
+    // Jump to start of list for curated screen
+    if (index == 0) {
+      _curatedListController.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
     setState(() {
       _selectedIndex = index;
     });

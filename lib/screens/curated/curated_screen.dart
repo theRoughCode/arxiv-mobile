@@ -10,6 +10,10 @@ import 'components/calendar_popup_view.dart';
 import 'components/filters_screen.dart';
 
 class CuratedListScreen extends StatefulWidget {
+  final ScrollController controller;
+
+  CuratedListScreen({Key key, @required this.controller}) : super(key: key);
+
   @override
   _CuratedListScreenState createState() => _CuratedListScreenState();
 }
@@ -18,8 +22,8 @@ class _CuratedListScreenState extends State<CuratedListScreen>
     with TickerProviderStateMixin {
   AnimationController animationController;
   int numResults = 0;
+  bool loading = true;
   List<Article> curatedList = [];
-  final ScrollController _scrollController = ScrollController();
 
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 5));
@@ -33,11 +37,25 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   }
 
   Future<void> getData() async {
-    final results = await ArxivScraper.fetchAllArticles();
+    final results =
+        await ArxivScraper.fetchAllArticles(start: curatedList.length);
     setState(() {
-      numResults = results.numResults;
-      curatedList = results.articles;
+      numResults += results.numResults;
+      curatedList.addAll(results.articles);
+      loading = false;
     });
+  }
+
+  bool _onScrollEnd(ScrollNotification scrollInfo) {
+    if (!loading &&
+        curatedList.length < numResults &&
+        scrollInfo.metrics.extentAfter < 300) {
+      setState(() {
+        loading = true;
+      });
+      getData();
+    }
+    return false;
   }
 
   @override
@@ -63,7 +81,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
                   FocusScope.of(context).requestFocus(FocusNode());
                 },
                 child: NestedScrollView(
-                  controller: _scrollController,
+                  controller: widget.controller,
                   headerSliverBuilder:
                       (BuildContext context, bool innerBoxIsScrolled) {
                     return <Widget>[
@@ -95,11 +113,13 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   }
 
   Widget getListUI() {
-    if (curatedList.length == 0) {
+    if (curatedList.length == 0 && loading) {
       return Center(child: CircularProgressIndicator());
     }
 
     return RefreshIndicator(
+      child: NotificationListener<ScrollNotification>(
+        onNotification: _onScrollEnd,
         child: ListView.builder(
           itemCount: curatedList.length,
           scrollDirection: Axis.vertical,
@@ -126,7 +146,9 @@ class _CuratedListScreenState extends State<CuratedListScreen>
             );
           },
         ),
-        onRefresh: getData);
+      ),
+      onRefresh: getData,
+    );
   }
 
   Widget getSearchBarUI() {
