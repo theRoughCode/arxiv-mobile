@@ -1,5 +1,6 @@
 import 'package:arxiv_mobile/models/article.dart';
-import 'package:arxiv_mobile/screens/curated/components/curated_list_view.dart';
+import 'package:arxiv_mobile/screens/article_details/article_details_screen.dart';
+import 'package:arxiv_mobile/screens/curated/components/article_card.dart';
 import 'package:arxiv_mobile/services/arxiv_scaper.dart';
 import 'package:arxiv_mobile/themes/curated_list_theme.dart';
 import 'package:flutter/material.dart';
@@ -111,8 +112,13 @@ class _CuratedListScreenState extends State<CuratedListScreen>
                         curve: Curves.fastOutSlowIn)));
             animationController.forward();
 
-            return CuratedListView(
-              callback: () {},
+            return ArticleCard(
+              callback: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ArticleDetailsScreen(article: curatedList[index])));
+              },
               article: curatedList[index],
               animation: animation,
               animationController: animationController,
