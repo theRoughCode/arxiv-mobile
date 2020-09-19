@@ -15,8 +15,7 @@ class ArticleCard extends StatelessWidget {
   final Article article;
   final AnimationController animationController;
   final Animation<dynamic> animation;
-  static TextTheme textTheme =
-      CuratedListTheme.buildLightTheme().primaryTextTheme;
+  static ThemeData theme = CuratedListTheme.buildLightTheme();
 
   @override
   Widget build(BuildContext context) {
@@ -46,8 +45,7 @@ class ArticleCard extends StatelessWidget {
       margin: const EdgeInsets.only(top: 8),
       shape: BeveledRectangleBorder(),
       child: InkWell(
-        splashColor:
-            CuratedListTheme.buildLightTheme().primaryColor.withAlpha(25),
+        splashColor: theme.primaryColor.withAlpha(25),
         onTap: () {
           print("Title: ${article.title}");
           callback();
@@ -58,12 +56,12 @@ class ArticleCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(article.title, style: textTheme.headline1),
+              Text(article.title, style: theme.textTheme.headline1),
               Padding(
                 padding: const EdgeInsets.only(top: 2, bottom: 4),
                 child: Text(
                   authorsStr,
-                  style: textTheme.subtitle2,
+                  style: theme.textTheme.subtitle2.copyWith(color: theme.primaryColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -76,7 +74,7 @@ class ArticleCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 12.0)),
               ),
-              Text(article.categories.join(', '), style: textTheme.subtitle2),
+              Text(article.categories.join(', '), style: theme.textTheme.subtitle2),
             ],
           ),
         ),

@@ -7,7 +7,7 @@ class ArxivScraper {
   static const MAX_RESULTS = 10;
 
   // Fetch all articles given list of categories
-  static Future<List<Article>> fetchArticlesFromCategories(
+  static Future<ScrapeResults> fetchArticlesFromCategories(
       List<String> categories,
       {sortBy = SortBy.lastUpdatedDate,
       sortOrder,
@@ -21,16 +21,19 @@ class ArxivScraper {
             start: start,
             maxResults: maxResults)
         .fetch();
-    
-    return xml
-        .parse(response)
+    final parsedXml = xml.parse(response);
+    final numResults =
+        int.parse(parsedXml.findAllElements("opensearch:totalResults").first.text);
+    final articles = parsedXml
         .findAllElements('entry')
         .map((e) => Article.fromEntry(e))
         .toList();
+
+    return ScrapeResults(numResults, articles);
   }
 
   // Fetch all articles
-  static Future<List<Article>> fetchAllArticles(
+  static Future<ScrapeResults> fetchAllArticles(
       {sortBy = SortBy.lastUpdatedDate, sortOrder, start, maxResults}) async {
     final List<String> categories =
         CategoryGroup.categoryGroupList.map((e) => "cat:${e.id}*").toList();
@@ -53,7 +56,15 @@ void main(List<String> args) {
   // Future<Article> futureArticle =
   //     ArxivScraper.fetchArticleById('cond-mat/0002322v1');
   // futureArticle.then((value) => print(value.title));
-  ArxivScraper.fetchAllArticles().then((value) => value.forEach((element) {
-        print(element.title);
-      }));
+  ArxivScraper.fetchAllArticles()
+      .then((value) => value.articles.forEach((element) {
+            print(element.title);
+          }));
+}
+
+class ScrapeResults {
+  ScrapeResults(this.numResults, this.articles);
+
+  final int numResults;
+  final List<Article> articles;
 }
