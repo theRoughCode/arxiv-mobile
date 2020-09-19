@@ -8,8 +8,11 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ArticleDetailsScreen extends StatefulWidget {
   final Article article;
+  final bool favourited;
 
-  ArticleDetailsScreen({Key key, @required this.article}) : super(key: key);
+  ArticleDetailsScreen(
+      {Key key, @required this.article, this.favourited = false})
+      : super(key: key);
 
   @override
   _ArticleDetailsScreenState createState() => _ArticleDetailsScreenState();
@@ -59,29 +62,37 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
         backgroundColor: Colors.transparent,
         body: Column(
           children: <Widget>[
-            Align(
-              alignment: Alignment.topLeft,
-              child: Padding(
-                padding:
-                    EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-                child: SizedBox(
-                  width: AppBar().preferredSize.height,
-                  height: AppBar().preferredSize.height,
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius:
-                          BorderRadius.circular(AppBar().preferredSize.height),
-                      child: Icon(
-                        Icons.arrow_back_ios,
-                        color: DetailsTheme.nearlyBlack,
+            Padding(
+              padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: AppBar().preferredSize.height,
+                    height: AppBar().preferredSize.height,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(
+                            AppBar().preferredSize.height),
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          color: DetailsTheme.nearlyBlack,
+                        ),
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
                       ),
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
                     ),
                   ),
-                ),
+                  IconButton(
+                      icon: Icon(
+                          widget.favourited
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: DetailsTheme.nearlyBlue),
+                      onPressed: null),
+                ],
               ),
             ),
             Expanded(
@@ -254,33 +265,6 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
       ),
     );
   }
-
-  // Positioned(
-  //   top: (MediaQuery.of(context).size.width / 1.2) - 24.0 - 35,
-  //   right: 35,
-  //   child: ScaleTransition(
-  //     alignment: Alignment.center,
-  //     scale: CurvedAnimation(
-  //         parent: animationController, curve: Curves.fastOutSlowIn),
-  //     child: Card(
-  //       color: DetailsTheme.nearlyBlue,
-  //       shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(50.0)),
-  //       elevation: 10.0,
-  //       child: Container(
-  //         width: 60,
-  //         height: 60,
-  //         child: Center(
-  //           child: Icon(
-  //             Icons.favorite,
-  //             color: DetailsTheme.nearlyWhite,
-  //             size: 30,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
-  //   ),
-  // ),
 
   Widget getTimeBoxUI(String text1, String txt2) {
     return Padding(

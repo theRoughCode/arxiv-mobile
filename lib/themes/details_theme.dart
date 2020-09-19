@@ -97,6 +97,6 @@ class DetailsTheme {
     fontWeight: FontWeight.w200,
     fontSize: 12,
     letterSpacing: 0.2,
-    color: nearlyWhite, // was lightText
+    color: nearlyWhite,
   );
 }
