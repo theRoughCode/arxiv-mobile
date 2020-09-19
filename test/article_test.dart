@@ -86,4 +86,12 @@ void main() {
     expect(article.articleUrl, 'http://arxiv.org/abs/cond-mat/0002322v1');
     expect(article.pdfUrl, 'http://arxiv.org/pdf/cond-mat/0002322v1');
   });
+
+  test('LaTex delimiter replacement', () {
+    expect(replaceLaTeXDelims(r"$H_0$"), r"\(H_0\)");
+    expect(replaceLaTeXDelims(r"$H_0$ foo"), r"\(H_0\) foo");
+    expect(replaceLaTeXDelims(r"$H_0$ foo $H_1$"), r"\(H_0\) foo \(H_1\)");
+    expect(replaceLaTeXDelims(r"$H_0$ $H_1$ bar"), r"\(H_0\) \(H_1\) bar");
+    expect(replaceLaTeXDelims(r"$H_0$ foo $H_1$ bar"), r"\(H_0\) foo \(H_1\) bar");
+  });
 }

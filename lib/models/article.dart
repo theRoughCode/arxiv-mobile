@@ -74,8 +74,10 @@ class Article {
           DateTime.parse(_getTextFromElements(entry.findElements('updated'))),
       'published':
           DateTime.parse(_getTextFromElements(entry.findElements('published'))),
-      'title': _getTextFromElements(entry.findElements('title')),
-      'summary': _getTextFromElements(entry.findElements('summary')),
+      'title':
+          replaceLaTeXDelims(_getTextFromElements(entry.findElements('title'))),
+      'summary': replaceLaTeXDelims(
+          _getTextFromElements(entry.findElements('summary'))),
       'authors': entry
           .findElements('author')
           .map((node) => _getTextFromElements(node.findElements('name')))
@@ -98,10 +100,13 @@ class Article {
   }
 }
 
+String replaceLaTeXDelims(String text) => text.replaceAllMapped(
+    new RegExp(r"\$(.*?)\$"), (Match m) => "\\(${m[1]}\\)");
+
 String _getTextFromElements(Iterable<XmlElement> elems) =>
     (elems.length == 0 || elems.first == null)
         ? null
         : elems.first.text
             .trim()
             .replaceAll('\n', ' ')
-            ?.replaceAll(new RegExp('\\s\\s+'), ' ');
+            .replaceAll(new RegExp('\\s\\s+'), ' ');
