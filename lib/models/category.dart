@@ -1,13 +1,21 @@
+import 'package:arxiv_mobile/models/category_group.dart';
+import 'package:flutter/material.dart';
+
 class Category {
   Category({
     this.id,
     this.title,
     this.isSelected = false,
-  });
+  }) {
+    this.categoryGroup = CategoryGroup.categoryGroupMap[this.id.split('.')[0]];
+  }
 
   String id;
   String title;
   bool isSelected;
+  CategoryGroup categoryGroup;
+
+  static Color getColour(String id) => categoryMap[id].categoryGroup?.colour ?? Colors.grey;
 
   static List<Category> categoryList = <Category>[
     Category(id: "astro-ph", title: "Astrophysics"),
@@ -173,7 +181,7 @@ class Category {
     Category(id: "stat.TH", title: "Statistics Theory"),
   ];
 
-  static final Map<String, String> categoryMap =
+  static final Map<String, Category> categoryMap =
       Map.fromIterable(categoryList, key: (cat) => cat.id, value: (cat) => cat);
 
   static final List<String> categories =
