@@ -9,11 +9,17 @@ class ArxivScraper {
   // Fetch all articles given list of categories
   static Future<ScrapeResults> fetchArticlesFromCategories(
       List<String> categories,
-      {sortBy = SortBy.lastUpdatedDate,
-      sortOrder,
-      start,
-      maxResults}) async {
-    final searchQuery = categories.join("+OR+");
+      {String search,
+      SortBy sortBy = SortBy.lastUpdatedDate,
+      SortOrder sortOrder,
+      int start,
+      int maxResults}) async {
+    var searchQuery =
+        (search == null || search.length == 0) ? "" : "all:$search";
+    if (categories.length > 0) {
+      if (searchQuery.length > 0) searchQuery += "+AND+";
+      searchQuery += categories.join("+OR+");
+    }
     final response = await ArxivQuery(
             query: searchQuery,
             sortBy: sortBy,
@@ -22,8 +28,8 @@ class ArxivScraper {
             maxResults: maxResults)
         .fetch();
     final parsedXml = xml.parse(response);
-    final numResults =
-        int.parse(parsedXml.findAllElements("opensearch:totalResults").first.text);
+    final numResults = int.parse(
+        parsedXml.findAllElements("opensearch:totalResults").first.text);
     final articles = parsedXml
         .findAllElements('entry')
         .map((e) => Article.fromEntry(e))
@@ -34,14 +40,21 @@ class ArxivScraper {
 
   // Fetch all articles
   static Future<ScrapeResults> fetchAllArticles(
-      {sortBy = SortBy.lastUpdatedDate, sortOrder, start, maxResults}) async {
+      {String search,
+      SortBy sortBy = SortBy.lastUpdatedDate,
+      SortOrder sortOrder,
+      int start,
+      int maxResults}) async {
     final List<String> categories =
         CategoryGroup.categoryGroupList.map((e) => "cat:${e.id}*").toList();
-    return fetchArticlesFromCategories(categories,
-        sortBy: sortBy,
-        sortOrder: sortOrder,
-        start: start,
-        maxResults: maxResults);
+    return fetchArticlesFromCategories(
+      categories,
+      search: search,
+      sortBy: sortBy,
+      sortOrder: sortOrder,
+      start: start,
+      maxResults: maxResults,
+    );
   }
 
   // Fetch an article by its ID

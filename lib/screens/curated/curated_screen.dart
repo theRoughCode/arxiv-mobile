@@ -1,10 +1,10 @@
 import 'package:arxiv_mobile/models/article.dart';
 import 'package:arxiv_mobile/screens/article_details/article_details_screen.dart';
 import 'package:arxiv_mobile/screens/curated/components/article_card.dart';
+import 'package:arxiv_mobile/screens/curated/components/search_bar.dart';
 import 'package:arxiv_mobile/services/arxiv_scaper.dart';
 import 'package:arxiv_mobile/themes/curated_list_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'components/calendar_popup_view.dart';
 import 'components/filters_screen.dart';
@@ -21,6 +21,7 @@ class CuratedListScreen extends StatefulWidget {
 class _CuratedListScreenState extends State<CuratedListScreen>
     with TickerProviderStateMixin {
   AnimationController animationController;
+  String query;
   int numResults = 0;
   bool loading = true;
   List<Article> curatedList = [];
@@ -36,12 +37,13 @@ class _CuratedListScreenState extends State<CuratedListScreen>
     getData();
   }
 
-  Future<void> getData() async {
+  Future<void> getData({int start, bool append = false}) async {
     final results =
-        await ArxivScraper.fetchAllArticles(start: curatedList.length);
+        await ArxivScraper.fetchAllArticles(search: query, start: start);
     setState(() {
-      numResults += results.numResults;
-      curatedList.addAll(results.articles);
+      numResults = results.numResults;
+      if (append) curatedList.addAll(results.articles);
+      else curatedList = results.articles ?? [];
       loading = false;
     });
   }
@@ -53,9 +55,19 @@ class _CuratedListScreenState extends State<CuratedListScreen>
       setState(() {
         loading = true;
       });
-      getData();
+      getData(start: curatedList.length, append: true);
     }
     return false;
+  }
+
+  void _onSearch(String text) {
+    setState(() {
+      loading = true;
+      numResults = 0;
+      curatedList = [];
+      query = text;
+    });
+    getData();
   }
 
   @override
@@ -89,9 +101,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
                         delegate: SliverChildBuilderDelegate(
                             (BuildContext context, int index) {
                           return Column(
-                            children: <Widget>[
-                              getSearchBarUI(),
-                            ],
+                            children: <Widget>[SearchBar(onSearch: _onSearch)],
                           );
                         }, childCount: 1),
                       ),
@@ -147,84 +157,9 @@ class _CuratedListScreenState extends State<CuratedListScreen>
           },
         ),
       ),
-      onRefresh: getData,
-    );
-  }
-
-  Widget getSearchBarUI() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 8),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: CuratedListTheme.buildLightTheme().backgroundColor,
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(38.0),
-                  ),
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        offset: const Offset(0, 2),
-                        blurRadius: 8.0),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 16, right: 16, top: 4, bottom: 4),
-                  child: TextField(
-                    onChanged: (String txt) {},
-                    style: const TextStyle(
-                      fontSize: 18,
-                    ),
-                    cursorColor:
-                        CuratedListTheme.buildLightTheme().primaryColor,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: 'London...',
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              color: CuratedListTheme.buildLightTheme().primaryColor,
-              borderRadius: const BorderRadius.all(
-                Radius.circular(38.0),
-              ),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                    color: Colors.grey.withOpacity(0.4),
-                    offset: const Offset(0, 2),
-                    blurRadius: 8.0),
-              ],
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(32.0),
-                ),
-                onTap: () {
-                  FocusScope.of(context).requestFocus(FocusNode());
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Icon(FontAwesomeIcons.search,
-                      size: 20,
-                      color:
-                          CuratedListTheme.buildLightTheme().backgroundColor),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      onRefresh: () {
+        return getData(start: 0);
+      },
     );
   }
 
