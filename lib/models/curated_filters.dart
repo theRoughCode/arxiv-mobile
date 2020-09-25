@@ -1,60 +1,20 @@
-  
+import 'package:arxiv_mobile/models/category_group.dart';
+
 class CuratedFilter {
   CuratedFilter({
-    this.titleTxt = '',
+    this.id = '',
+    this.name = '',
     this.isSelected = false,
   });
 
-  String titleTxt;
+  String id;
+  String name;
   bool isSelected;
 
-  static List<CuratedFilter> curatedFiltersList = <CuratedFilter>[
-    CuratedFilter(
-      titleTxt: 'Free Breakfast',
-      isSelected: false,
-    ),
-    CuratedFilter(
-      titleTxt: 'Free Parking',
-      isSelected: false,
-    ),
-    CuratedFilter(
-      titleTxt: 'Pool',
-      isSelected: true,
-    ),
-    CuratedFilter(
-      titleTxt: 'Pet Friendly',
-      isSelected: false,
-    ),
-    CuratedFilter(
-      titleTxt: 'Free wifi',
-      isSelected: false,
-    ),
-  ];
-
-  static List<CuratedFilter> accomodationList = [
-    CuratedFilter(
-      titleTxt: 'All',
-      isSelected: false,
-    ),
-    CuratedFilter(
-      titleTxt: 'Apartment',
-      isSelected: false,
-    ),
-    CuratedFilter(
-      titleTxt: 'Home',
-      isSelected: true,
-    ),
-    CuratedFilter(
-      titleTxt: 'Villa',
-      isSelected: false,
-    ),
-    CuratedFilter(
-      titleTxt: 'Hotel',
-      isSelected: false,
-    ),
-    CuratedFilter(
-      titleTxt: 'Resort',
-      isSelected: false,
-    ),
-  ];
+  static List<CuratedFilter> categoryList = [CuratedFilter(id: 'all', name: 'All', isSelected: false)]..addAll(CategoryGroup.categoryGroupList
+      .map((categoryGroup) => CuratedFilter(
+            id: categoryGroup.id,
+            name: categoryGroup.name,
+            isSelected: false,
+          )));
 }

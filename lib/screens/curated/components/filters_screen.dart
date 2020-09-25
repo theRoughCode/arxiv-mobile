@@ -3,21 +3,14 @@ import 'package:arxiv_mobile/themes/curated_list_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'range_slider_view.dart';
-import 'slider_view.dart';
-
 class FiltersScreen extends StatefulWidget {
   @override
   _FiltersScreenState createState() => _FiltersScreenState();
 }
 
 class _FiltersScreenState extends State<FiltersScreen> {
-  List<CuratedFilter> popularFilterListData =
-      CuratedFilter.curatedFiltersList;
-  List<CuratedFilter> accomodationListData =
-      CuratedFilter.accomodationList;
+  List<CuratedFilter> categoryFilterListData = CuratedFilter.categoryList;
 
-  RangeValues _values = const RangeValues(100, 600);
   double distValue = 50.0;
 
   @override
@@ -31,23 +24,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
             getAppBarUI(),
             Expanded(
               child: SingleChildScrollView(
-                child: Column(
-                  children: <Widget>[
-                    priceBarFilter(),
-                    const Divider(
-                      height: 1,
-                    ),
-                    popularFilter(),
-                    const Divider(
-                      height: 1,
-                    ),
-                    distanceViewUI(),
-                    const Divider(
-                      height: 1,
-                    ),
-                    allAccommodationUI()
-                  ],
-                ),
+                child: categoryListFilter(),
               ),
             ),
             const Divider(
@@ -96,7 +73,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
     );
   }
 
-  Widget allAccommodationUI() {
+  Widget categoryListFilter() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -105,7 +82,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
           padding:
               const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
           child: Text(
-            'Type of Accommodation',
+            'Subject Categories',
             textAlign: TextAlign.left,
             style: TextStyle(
                 color: Colors.grey,
@@ -128,8 +105,8 @@ class _FiltersScreenState extends State<FiltersScreen> {
 
   List<Widget> getAccomodationListUI() {
     final List<Widget> noList = <Widget>[];
-    for (int i = 0; i < accomodationListData.length; i++) {
-      final CuratedFilter date = accomodationListData[i];
+    for (int i = 0; i < categoryFilterListData.length; i++) {
+      final CuratedFilter categoryGroup = categoryFilterListData[i];
       noList.add(
         Material(
           color: Colors.transparent,
@@ -146,12 +123,12 @@ class _FiltersScreenState extends State<FiltersScreen> {
                 children: <Widget>[
                   Expanded(
                     child: Text(
-                      date.titleTxt,
+                      categoryGroup.name,
                       style: TextStyle(color: Colors.black),
                     ),
                   ),
                   CupertinoSwitch(
-                    activeColor: date.isSelected
+                    activeColor: categoryGroup.isSelected
                         ? CuratedListTheme.buildLightTheme().primaryColor
                         : Colors.grey.withOpacity(0.6),
                     onChanged: (bool value) {
@@ -159,7 +136,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
                         checkAppPosition(i);
                       });
                     },
-                    value: date.isSelected,
+                    value: categoryGroup.isSelected,
                   ),
                 ],
               ),
@@ -178,190 +155,35 @@ class _FiltersScreenState extends State<FiltersScreen> {
 
   void checkAppPosition(int index) {
     if (index == 0) {
-      if (accomodationListData[0].isSelected) {
-        accomodationListData.forEach((d) {
+      if (categoryFilterListData[0].isSelected) {
+        categoryFilterListData.forEach((d) {
           d.isSelected = false;
         });
       } else {
-        accomodationListData.forEach((d) {
+        categoryFilterListData.forEach((d) {
           d.isSelected = true;
         });
       }
     } else {
-      accomodationListData[index].isSelected =
-          !accomodationListData[index].isSelected;
+      categoryFilterListData[index].isSelected =
+          !categoryFilterListData[index].isSelected;
 
       int count = 0;
-      for (int i = 0; i < accomodationListData.length; i++) {
+      for (int i = 0; i < categoryFilterListData.length; i++) {
         if (i != 0) {
-          final CuratedFilter data = accomodationListData[i];
+          final CuratedFilter data = categoryFilterListData[i];
           if (data.isSelected) {
             count += 1;
           }
         }
       }
 
-      if (count == accomodationListData.length - 1) {
-        accomodationListData[0].isSelected = true;
+      if (count == categoryFilterListData.length - 1) {
+        categoryFilterListData[0].isSelected = true;
       } else {
-        accomodationListData[0].isSelected = false;
+        categoryFilterListData[0].isSelected = false;
       }
     }
-  }
-
-  Widget distanceViewUI() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding:
-              const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
-          child: Text(
-            'Distance from city center',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-                color: Colors.grey,
-                fontSize: MediaQuery.of(context).size.width > 360 ? 18 : 16,
-                fontWeight: FontWeight.normal),
-          ),
-        ),
-        SliderView(
-          distValue: distValue,
-          onChangedistValue: (double value) {
-            distValue = value;
-          },
-        ),
-        const SizedBox(
-          height: 8,
-        ),
-      ],
-    );
-  }
-
-  Widget popularFilter() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding:
-              const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
-          child: Text(
-            'Popular filters',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-                color: Colors.grey,
-                fontSize: MediaQuery.of(context).size.width > 360 ? 18 : 16,
-                fontWeight: FontWeight.normal),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 16, left: 16),
-          child: Column(
-            children: getPList(),
-          ),
-        ),
-        const SizedBox(
-          height: 8,
-        )
-      ],
-    );
-  }
-
-  List<Widget> getPList() {
-    final List<Widget> noList = <Widget>[];
-    int count = 0;
-    const int columnCount = 2;
-    for (int i = 0; i < popularFilterListData.length / columnCount; i++) {
-      final List<Widget> listUI = <Widget>[];
-      for (int i = 0; i < columnCount; i++) {
-        try {
-          final CuratedFilter date = popularFilterListData[count];
-          listUI.add(Expanded(
-            child: Row(
-              children: <Widget>[
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-                    onTap: () {
-                      setState(() {
-                        date.isSelected = !date.isSelected;
-                      });
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        children: <Widget>[
-                          Icon(
-                            date.isSelected
-                                ? Icons.check_box
-                                : Icons.check_box_outline_blank,
-                            color: date.isSelected
-                                ? CuratedListTheme.buildLightTheme().primaryColor
-                                : Colors.grey.withOpacity(0.6),
-                          ),
-                          const SizedBox(
-                            width: 4,
-                          ),
-                          Text(
-                            date.titleTxt,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ));
-          if (count < popularFilterListData.length - 1) {
-            count += 1;
-          } else {
-            break;
-          }
-        } catch (e) {
-          print(e);
-        }
-      }
-      noList.add(Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: listUI,
-      ));
-    }
-    return noList;
-  }
-
-  Widget priceBarFilter() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'Price (for 1 night)',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-                color: Colors.grey,
-                fontSize: MediaQuery.of(context).size.width > 360 ? 18 : 16,
-                fontWeight: FontWeight.normal),
-          ),
-        ),
-        RangeSliderView(
-          values: _values,
-          onChangeRangeValues: (RangeValues values) {
-            _values = values;
-          },
-        ),
-        const SizedBox(
-          height: 8,
-        )
-      ],
-    );
   }
 
   Widget getAppBarUI() {

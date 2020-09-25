@@ -42,8 +42,10 @@ class _CuratedListScreenState extends State<CuratedListScreen>
         await ArxivScraper.fetchAllArticles(search: query, start: start);
     setState(() {
       numResults = results.numResults;
-      if (append) curatedList.addAll(results.articles);
-      else curatedList = results.articles ?? [];
+      if (append)
+        curatedList.addAll(results.articles);
+      else
+        curatedList = results.articles ?? [];
       loading = false;
     });
   }
