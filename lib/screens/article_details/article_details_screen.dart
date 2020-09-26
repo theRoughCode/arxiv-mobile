@@ -150,7 +150,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                               ),
                             ),
                           ),
-                          Row(
+                          Wrap(
                             children: widget.article.categories
                                 .map(
                                   (cat) => Padding(
@@ -232,6 +232,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => PdfViewerScreen(
+                                          title: widget.article.id,
                                           url: widget.article.pdfUrl),
                                     ),
                                   );
