@@ -14,22 +14,23 @@ class Article {
   final List<String> categories;
   final String articleUrl;
   final String pdfUrl;
+  bool favourited = false;
 
   Article(
-    this.id,
-    this.updated,
-    this.published,
-    this.title,
-    this.summary,
-    this.authors,
-    this.doi,
-    this.doiUrl,
-    this.comment,
-    this.journalRef,
-    this.categories,
-    this.articleUrl,
-    this.pdfUrl,
-  );
+      this.id,
+      this.updated,
+      this.published,
+      this.title,
+      this.summary,
+      this.authors,
+      this.doi,
+      this.doiUrl,
+      this.comment,
+      this.journalRef,
+      this.categories,
+      this.articleUrl,
+      this.pdfUrl,
+      {this.favourited = false});
 
   Article.fromJson(Map<String, dynamic> json)
       : id = json['id'],
@@ -44,7 +45,8 @@ class Article {
         journalRef = json['journalRef'],
         categories = json['categories'],
         articleUrl = json['articleUrl'],
-        pdfUrl = json['pdfUrl'];
+        pdfUrl = json['pdfUrl'],
+        favourited = false;
 
   factory Article.fromEntry(XmlElement entry) {
     var articleUrl, pdfUrl, doiUrl;

@@ -10,10 +10,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ArticleDetailsScreen extends StatefulWidget {
   final Article article;
-  final bool favourited;
+  final VoidCallback onFavourite;
 
   ArticleDetailsScreen(
-      {Key key, @required this.article, this.favourited = false})
+      {Key key, @required this.article, @required this.onFavourite})
       : super(key: key);
 
   @override
@@ -78,12 +78,13 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                     ),
                   ),
                   IconButton(
-                      icon: Icon(
-                          widget.favourited
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: DetailsTheme.nearlyBlue),
-                      onPressed: null),
+                    icon: Icon(
+                        widget.article.favourited
+                            ? Icons.favorite
+                            : Icons.favorite_border,
+                        color: DetailsTheme.nearlyBlue),
+                    onPressed: widget.onFavourite,
+                  ),
                 ],
               ),
             ),
@@ -192,8 +193,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsets.only(
-                          left: 16, bottom: 16, right: 16),
+                      padding: const EdgeInsets.all(16),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,

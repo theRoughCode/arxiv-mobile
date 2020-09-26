@@ -7,7 +7,6 @@ import 'package:arxiv_mobile/services/arxiv_scaper.dart';
 import 'package:arxiv_mobile/themes/curated_list_theme.dart';
 import 'package:flutter/material.dart';
 
-import 'components/calendar_popup_view.dart';
 import 'components/filters_screen.dart';
 
 class CuratedListScreen extends StatefulWidget {
@@ -26,6 +25,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   int numResults = 0;
   bool loading = true;
   List<Article> curatedList = [];
+  Map<String, bool> favouritedList = {};
   List<CuratedFilter> categoryFilterList = CuratedFilter.categoryList;
 
   DateTime startDate = DateTime.now();
@@ -40,7 +40,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   }
 
   Future<void> getData({int start, bool append = false}) async {
-    var results;
+    ScrapeResults results;
 
     if (categoryFilterList[0].isSelected) {
       // All categories
@@ -55,6 +55,10 @@ class _CuratedListScreenState extends State<CuratedListScreen>
       results = await ArxivScraper.fetchArticlesFromCategories(categories,
           search: query, start: start);
     }
+
+    results.articles.forEach((article) {
+      if (favouritedList.containsKey(article.id)) article.favourited = true;
+    });
 
     setState(() {
       numResults = results.numResults;
@@ -93,6 +97,16 @@ class _CuratedListScreenState extends State<CuratedListScreen>
       categoryFilterList = filterList;
     });
     getData();
+  }
+
+  void onFavourite(Article article) {
+    setState(() {
+      article.favourited = !article.favourited;
+      if (article.favourited)
+        favouritedList[article.id] = true;
+      else if (favouritedList.containsKey(article.id))
+        favouritedList.remove(article.id);
+    });
   }
 
   @override
@@ -162,23 +176,36 @@ class _CuratedListScreenState extends State<CuratedListScreen>
           itemBuilder: (BuildContext context, int index) {
             final int count = curatedList.length > 10 ? 10 : curatedList.length;
             final Animation<double> animation =
-                Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-                    parent: animationController,
-                    curve: Interval((1 / count) * index, 1.0,
-                        curve: Curves.fastOutSlowIn)));
+                Tween<double>(begin: 0.0, end: 1.0).animate(
+              CurvedAnimation(
+                parent: animationController,
+                curve: Interval(
+                  (1 / count) * index,
+                  1.0,
+                  curve: Curves.fastOutSlowIn,
+                ),
+              ),
+            );
             animationController.forward();
+
+            final article = curatedList[index];
 
             return ArticleCard(
               callback: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            ArticleDetailsScreen(article: curatedList[index])));
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ArticleDetailsScreen(
+                      article: article,
+                      onFavourite: () => onFavourite(article),
+                    ),
+                  ),
+                );
               },
-              article: curatedList[index],
+              article: article,
               animation: animation,
               animationController: animationController,
+              onFavourite: () => onFavourite(article),
             );
           },
         ),
@@ -186,28 +213,6 @@ class _CuratedListScreenState extends State<CuratedListScreen>
       onRefresh: () {
         return getData(start: 0);
       },
-    );
-  }
-
-  void showDemoDialog({BuildContext context}) {
-    showDialog<dynamic>(
-      context: context,
-      builder: (BuildContext context) => CalendarPopupView(
-        barrierDismissible: true,
-        minimumDate: DateTime.now(),
-        //  maximumDate: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day + 10),
-        initialEndDate: endDate,
-        initialStartDate: startDate,
-        onApplyClick: (DateTime startData, DateTime endData) {
-          setState(() {
-            if (startData != null && endData != null) {
-              startDate = startData;
-              endDate = endData;
-            }
-          });
-        },
-        onCancelClick: () {},
-      ),
     );
   }
 }

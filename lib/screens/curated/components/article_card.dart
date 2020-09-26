@@ -3,16 +3,18 @@ import 'package:arxiv_mobile/themes/curated_list_theme.dart';
 import 'package:flutter/material.dart';
 
 class ArticleCard extends StatelessWidget {
-  const ArticleCard(
-      {Key key,
-      this.article,
-      this.animationController,
-      this.animation,
-      this.callback})
-      : super(key: key);
+  const ArticleCard({
+    Key key,
+    @required this.article,
+    @required this.animationController,
+    @required this.animation,
+    @required this.callback,
+    @required this.onFavourite,
+  }) : super(key: key);
 
   static ThemeData theme = CuratedListTheme.buildLightTheme();
   final VoidCallback callback;
+  final VoidCallback onFavourite;
   final Article article;
   final AnimationController animationController;
   final Animation<dynamic> animation;
@@ -45,7 +47,22 @@ class ArticleCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Text(article.title, style: theme.textTheme.headline1),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(article.title,
+                                style: theme.textTheme.headline1),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                                article.favourited
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: theme.primaryColor),
+                            onPressed: onFavourite,
+                          ),
+                        ],
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(top: 2, bottom: 4),
                         child: Text(
