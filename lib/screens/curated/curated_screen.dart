@@ -26,7 +26,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   int numResults = 0;
   bool loading = true;
   List<Article> curatedList = [];
-  List<CuratedFilter> categoryFilterListData = CuratedFilter.categoryList;
+  List<CuratedFilter> categoryFilterList = CuratedFilter.categoryList;
 
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 5));
@@ -40,8 +40,22 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   }
 
   Future<void> getData({int start, bool append = false}) async {
-    final results =
-        await ArxivScraper.fetchAllArticles(search: query, start: start);
+    var results;
+
+    if (categoryFilterList[0].isSelected) {
+      // All categories
+      results =
+          await ArxivScraper.fetchAllArticles(search: query, start: start);
+    } else {
+      final categories = categoryFilterList
+          .skip(1)
+          .where((category) => category.isSelected)
+          .map((category) => category.id)
+          .toList();
+      results = await ArxivScraper.fetchArticlesFromCategories(categories,
+          search: query, start: start);
+    }
+
     setState(() {
       numResults = results.numResults;
       if (append)
@@ -76,8 +90,9 @@ class _CuratedListScreenState extends State<CuratedListScreen>
 
   void onApplyFilters(List<CuratedFilter> filterList) {
     setState(() {
-      categoryFilterListData = filterList;
+      categoryFilterList = filterList;
     });
+    getData();
   }
 
   @override
@@ -119,7 +134,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
                         pinned: true,
                         floating: true,
                         delegate: FilterBar(
-                            numResults, categoryFilterListData, onApplyFilters),
+                            numResults, categoryFilterList, onApplyFilters),
                       ),
                     ];
                   },

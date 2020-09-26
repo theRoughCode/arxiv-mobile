@@ -12,12 +12,12 @@ class CuratedFilter {
   bool isSelected;
 
   static List<CuratedFilter> categoryList = [
-    CuratedFilter(id: 'all', name: 'All', isSelected: false)
+    CuratedFilter(id: 'all', name: 'All', isSelected: true)
   ]..addAll(
       CategoryGroup.categoryGroupList.map((categoryGroup) => CuratedFilter(
             id: categoryGroup.id,
             name: categoryGroup.name,
-            isSelected: false,
+            isSelected: true,
           )));
 
   CuratedFilter clone() => new CuratedFilter(

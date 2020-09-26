@@ -17,8 +17,9 @@ class ArxivScraper {
     var searchQuery =
         (search == null || search.length == 0) ? "" : "all:$search";
     if (categories.length > 0) {
-      if (searchQuery.length > 0) searchQuery += "+AND+";
-      searchQuery += categories.join("+OR+");
+      final catString = categories.map((catId) => "cat:$catId*").join("+OR+");
+      if (searchQuery.length > 0) searchQuery += "+AND+%28$catString%29";
+      else searchQuery += catString;
     }
     final response = await ArxivQuery(
             query: searchQuery,
@@ -46,7 +47,7 @@ class ArxivScraper {
       int start,
       int maxResults}) async {
     final List<String> categories =
-        CategoryGroup.categoryGroupList.map((e) => "cat:${e.id}*").toList();
+        CategoryGroup.categoryGroupList.map((e) => e.id).toList();
     return fetchArticlesFromCategories(
       categories,
       search: search,
