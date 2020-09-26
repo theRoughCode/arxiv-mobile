@@ -1,4 +1,5 @@
 import 'package:arxiv_mobile/models/article.dart';
+import 'package:arxiv_mobile/models/curated_filters.dart';
 import 'package:arxiv_mobile/screens/article_details/article_details_screen.dart';
 import 'package:arxiv_mobile/screens/curated/components/article_card.dart';
 import 'package:arxiv_mobile/screens/curated/components/search_bar.dart';
@@ -25,6 +26,7 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   int numResults = 0;
   bool loading = true;
   List<Article> curatedList = [];
+  List<CuratedFilter> categoryFilterListData = CuratedFilter.categoryList;
 
   DateTime startDate = DateTime.now();
   DateTime endDate = DateTime.now().add(const Duration(days: 5));
@@ -72,6 +74,12 @@ class _CuratedListScreenState extends State<CuratedListScreen>
     getData();
   }
 
+  void onApplyFilters(List<CuratedFilter> filterList) {
+    setState(() {
+      categoryFilterListData = filterList;
+    });
+  }
+
   @override
   void dispose() {
     animationController.dispose();
@@ -110,7 +118,8 @@ class _CuratedListScreenState extends State<CuratedListScreen>
                       SliverPersistentHeader(
                         pinned: true,
                         floating: true,
-                        delegate: FilterBar(numResults),
+                        delegate: FilterBar(
+                            numResults, categoryFilterListData, onApplyFilters),
                       ),
                     ];
                   },
@@ -189,9 +198,11 @@ class _CuratedListScreenState extends State<CuratedListScreen>
 }
 
 class FilterBar extends SliverPersistentHeaderDelegate {
-  FilterBar(this.numArticles);
+  FilterBar(this.numArticles, this.filterList, this.onApply);
 
   final int numArticles;
+  final List<CuratedFilter> filterList;
+  final Function(List<CuratedFilter>) onApply;
 
   @override
   double get maxExtent => 52.0;
@@ -254,7 +265,10 @@ class FilterBar extends SliverPersistentHeaderDelegate {
                       Navigator.push<dynamic>(
                         context,
                         MaterialPageRoute<dynamic>(
-                            builder: (BuildContext context) => FiltersScreen(),
+                            builder: (BuildContext context) => FiltersScreen(
+                                  filterList: filterList,
+                                  onApply: onApply,
+                                ),
                             fullscreenDialog: true),
                       );
                     },

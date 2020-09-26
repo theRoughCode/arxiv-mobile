@@ -4,14 +4,61 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class FiltersScreen extends StatefulWidget {
+  final List<CuratedFilter> filterList;
+  final Function(List<CuratedFilter>) onApply;
+
+  const FiltersScreen(
+      {Key key, @required this.filterList, @required this.onApply})
+      : super(key: key);
+
   @override
   _FiltersScreenState createState() => _FiltersScreenState();
 }
 
 class _FiltersScreenState extends State<FiltersScreen> {
-  List<CuratedFilter> categoryFilterListData = CuratedFilter.categoryList;
+  List<CuratedFilter> filterList = [];
 
-  double distValue = 50.0;
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      // Create local copy of filter list
+      filterList = widget.filterList.map((filter) => filter.clone()).toList();
+    });
+  }
+
+  // Handles toggling of filters
+  void onCheckFilter(int index) {
+    if (index == 0) {
+      if (filterList[0].isSelected) {
+        filterList.forEach((d) {
+          d.isSelected = false;
+        });
+      } else {
+        filterList.forEach((d) {
+          d.isSelected = true;
+        });
+      }
+    } else {
+      filterList[index].isSelected = !filterList[index].isSelected;
+
+      int count = 0;
+      for (int i = 0; i < filterList.length; i++) {
+        if (i != 0) {
+          final CuratedFilter data = filterList[i];
+          if (data.isSelected) {
+            count += 1;
+          }
+        }
+      }
+
+      if (count == filterList.length - 1) {
+        filterList[0].isSelected = true;
+      } else {
+        filterList[0].isSelected = false;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +68,17 @@ class _FiltersScreenState extends State<FiltersScreen> {
         backgroundColor: Colors.transparent,
         body: Column(
           children: <Widget>[
-            getAppBarUI(),
+            const FiltersAppBar(),
             Expanded(
               child: SingleChildScrollView(
-                child: categoryListFilter(),
+                child: CategoryListFilter(
+                  filterList: filterList,
+                  onCheck: (int index) {
+                    setState(() {
+                      onCheckFilter(index);
+                    });
+                  },
+                ),
               ),
             ),
             const Divider(
@@ -52,6 +106,7 @@ class _FiltersScreenState extends State<FiltersScreen> {
                     borderRadius: const BorderRadius.all(Radius.circular(24.0)),
                     highlightColor: Colors.transparent,
                     onTap: () {
+                      widget.onApply(filterList);
                       Navigator.pop(context);
                     },
                     child: Center(
@@ -72,121 +127,13 @@ class _FiltersScreenState extends State<FiltersScreen> {
       ),
     );
   }
+}
 
-  Widget categoryListFilter() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding:
-              const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
-          child: Text(
-            'Subject Categories',
-            textAlign: TextAlign.left,
-            style: TextStyle(
-                color: Colors.grey,
-                fontSize: MediaQuery.of(context).size.width > 360 ? 18 : 16,
-                fontWeight: FontWeight.normal),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 16, left: 16),
-          child: Column(
-            children: getAccomodationListUI(),
-          ),
-        ),
-        const SizedBox(
-          height: 8,
-        ),
-      ],
-    );
-  }
+class FiltersAppBar extends StatelessWidget {
+  const FiltersAppBar({Key key}) : super(key: key);
 
-  List<Widget> getAccomodationListUI() {
-    final List<Widget> noList = <Widget>[];
-    for (int i = 0; i < categoryFilterListData.length; i++) {
-      final CuratedFilter categoryGroup = categoryFilterListData[i];
-      noList.add(
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: const BorderRadius.all(Radius.circular(4.0)),
-            onTap: () {
-              setState(() {
-                checkAppPosition(i);
-              });
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      categoryGroup.name,
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  CupertinoSwitch(
-                    activeColor: categoryGroup.isSelected
-                        ? CuratedListTheme.buildLightTheme().primaryColor
-                        : Colors.grey.withOpacity(0.6),
-                    onChanged: (bool value) {
-                      setState(() {
-                        checkAppPosition(i);
-                      });
-                    },
-                    value: categoryGroup.isSelected,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      );
-      if (i == 0) {
-        noList.add(const Divider(
-          height: 1,
-        ));
-      }
-    }
-    return noList;
-  }
-
-  void checkAppPosition(int index) {
-    if (index == 0) {
-      if (categoryFilterListData[0].isSelected) {
-        categoryFilterListData.forEach((d) {
-          d.isSelected = false;
-        });
-      } else {
-        categoryFilterListData.forEach((d) {
-          d.isSelected = true;
-        });
-      }
-    } else {
-      categoryFilterListData[index].isSelected =
-          !categoryFilterListData[index].isSelected;
-
-      int count = 0;
-      for (int i = 0; i < categoryFilterListData.length; i++) {
-        if (i != 0) {
-          final CuratedFilter data = categoryFilterListData[i];
-          if (data.isSelected) {
-            count += 1;
-          }
-        }
-      }
-
-      if (count == categoryFilterListData.length - 1) {
-        categoryFilterListData[0].isSelected = true;
-      } else {
-        categoryFilterListData[0].isSelected = false;
-      }
-    }
-  }
-
-  Widget getAppBarUI() {
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: CuratedListTheme.buildLightTheme().backgroundColor,
@@ -241,5 +188,92 @@ class _FiltersScreenState extends State<FiltersScreen> {
         ),
       ),
     );
+  }
+}
+
+class CategoryListFilter extends StatelessWidget {
+  final List<CuratedFilter> filterList;
+  final Function(int) onCheck;
+  CategoryListFilter({Key key, this.filterList, this.onCheck})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding:
+              const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 8),
+          child: Text(
+            'Subject Categories',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+                color: Colors.grey,
+                fontSize: MediaQuery.of(context).size.width > 360 ? 18 : 16,
+                fontWeight: FontWeight.normal),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 16, left: 16),
+          child: Column(
+            children: getListUI(),
+          ),
+        ),
+        const SizedBox(
+          height: 8,
+        ),
+      ],
+    );
+  }
+
+  // Create UI from filters list
+  List<Widget> getListUI() {
+    final listUI = filterList
+        .asMap()
+        .map((i, filter) => MapEntry<int, Widget>(
+              i,
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+                  onTap: () {
+                    onCheck(i);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            filter.name,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                        CupertinoSwitch(
+                          activeColor: filter.isSelected
+                              ? CuratedListTheme.buildLightTheme().primaryColor
+                              : Colors.grey.withOpacity(0.6),
+                          onChanged: (bool value) {
+                            onCheck(i);
+                          },
+                          value: filter.isSelected,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ))
+        .values
+        .toList();
+    listUI.insert(
+      1,
+      const Divider(
+        height: 1,
+      ),
+    );
+    return listUI;
   }
 }

@@ -11,10 +11,15 @@ class CuratedFilter {
   String name;
   bool isSelected;
 
-  static List<CuratedFilter> categoryList = [CuratedFilter(id: 'all', name: 'All', isSelected: false)]..addAll(CategoryGroup.categoryGroupList
-      .map((categoryGroup) => CuratedFilter(
+  static List<CuratedFilter> categoryList = [
+    CuratedFilter(id: 'all', name: 'All', isSelected: false)
+  ]..addAll(
+      CategoryGroup.categoryGroupList.map((categoryGroup) => CuratedFilter(
             id: categoryGroup.id,
             name: categoryGroup.name,
             isSelected: false,
           )));
+
+  CuratedFilter clone() => new CuratedFilter(
+      id: this.id, name: this.name, isSelected: this.isSelected);
 }
