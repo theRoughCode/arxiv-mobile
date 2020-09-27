@@ -8,43 +8,13 @@ import 'package:flutter_tex/flutter_tex.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ArticleDetailsScreen extends StatefulWidget {
+class ArticleDetailsScreen extends StatelessWidget {
   final Article article;
   final VoidCallback onFavourite;
 
   ArticleDetailsScreen(
       {Key key, @required this.article, @required this.onFavourite})
       : super(key: key);
-
-  @override
-  _ArticleDetailsScreenState createState() => _ArticleDetailsScreenState();
-}
-
-class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
-    with TickerProviderStateMixin {
-  final double minHeight = 100.0;
-  AnimationController animationController;
-  Animation<double> animation;
-  double opacity = 0.0;
-
-  @override
-  void initState() {
-    animationController = AnimationController(
-        duration: const Duration(milliseconds: 1000), vsync: this);
-    animation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
-        parent: animationController,
-        curve: Interval(0, 1.0, curve: Curves.fastOutSlowIn)));
-    setData();
-    super.initState();
-  }
-
-  Future<void> setData() async {
-    animationController.forward();
-    await Future<dynamic>.delayed(const Duration(milliseconds: 1200));
-    setState(() {
-      opacity = 1.0;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,11 +49,14 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                   ),
                   IconButton(
                     icon: Icon(
-                        widget.article.favourited
+                        article.favourited
                             ? Icons.favorite
                             : Icons.favorite_border,
                         color: DetailsTheme.nearlyBlue),
-                    onPressed: widget.onFavourite,
+                    onPressed: () {
+                      onFavourite();
+                      (context as Element).markNeedsBuild();
+                    },
                   ),
                 ],
               ),
@@ -110,18 +83,18 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                      text: widget.article.id,
+                                      text: article.id,
                                       style: DetailsTheme.caption.copyWith(
                                           color: Colors.blue[300],
                                           decoration: TextDecoration.underline),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () {
-                                          launch(widget.article.articleUrl);
+                                          launch(article.articleUrl);
                                         }),
                                   TextSpan(
                                     text: " · " +
                                         DateFormat('dd MMM yyyy')
-                                            .format(widget.article.updated),
+                                            .format(article.updated),
                                     style: DetailsTheme.caption,
                                   )
                                 ],
@@ -129,7 +102,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                             ),
                           ),
                           Text(
-                            widget.article.title,
+                            article.title,
                             textAlign: TextAlign.left,
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
@@ -140,7 +113,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                           Padding(
                             padding: const EdgeInsets.only(bottom: 8, top: 8),
                             child: Text(
-                              widget.article.authors.join(', '),
+                              article.authors.join(', '),
                               textAlign: TextAlign.left,
                               style: TextStyle(
                                 fontWeight: FontWeight.w200,
@@ -151,7 +124,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                             ),
                           ),
                           Wrap(
-                            children: widget.article.categories
+                            children: article.categories
                                 .map(
                                   (cat) => Padding(
                                     padding: const EdgeInsets.only(right: 10),
@@ -168,27 +141,7 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                                 )
                                 .toList(),
                           ),
-                          AnimatedOpacity(
-                            duration: const Duration(milliseconds: 800),
-                            opacity: opacity,
-                            curve: Curves.easeInOutCubic,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 8, bottom: 8),
-                              child: TeXView(
-                                child: TeXViewDocument(widget.article.summary),
-                                style: TeXViewStyle(
-                                  textAlign: TeXViewTextAlign.Left,
-                                  contentColor: DetailsTheme.body2.color,
-                                  fontStyle: TeXViewFontStyle(
-                                    fontFamily: DetailsTheme.body2.fontFamily,
-                                    fontSize:
-                                        DetailsTheme.body2.fontSize.round(),
-                                    fontWeight: TeXViewFontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
+                          ArticleDescription(text: article.summary),
                         ],
                       ),
                     ),
@@ -232,8 +185,8 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => PdfViewerScreen(
-                                          title: widget.article.id,
-                                          url: widget.article.pdfUrl),
+                                          title: article.id,
+                                          url: article.pdfUrl),
                                     ),
                                   );
                                 },
@@ -260,6 +213,66 @@ class _ArticleDetailsScreenState extends State<ArticleDetailsScreen>
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class ArticleDescription extends StatefulWidget {
+  final String text;
+
+  ArticleDescription({Key key, @required this.text}) : super(key: key);
+
+  @override
+  _ArticleDescriptionsState createState() => _ArticleDescriptionsState();
+}
+
+class _ArticleDescriptionsState extends State<ArticleDescription>
+    with TickerProviderStateMixin {
+  final double minHeight = 100.0;
+  AnimationController animationController;
+  Animation<double> animation;
+  double opacity = 0.0;
+
+  @override
+  void initState() {
+    animationController = AnimationController(
+        duration: const Duration(milliseconds: 1000), vsync: this);
+    animation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
+        parent: animationController,
+        curve: Interval(0, 1.0, curve: Curves.fastOutSlowIn)));
+    setData();
+    super.initState();
+  }
+
+  Future<void> setData() async {
+    animationController.forward();
+    await Future<dynamic>.delayed(const Duration(milliseconds: 1200));
+    setState(() {
+      opacity = 1.0;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 800),
+      opacity: opacity,
+      curve: Curves.easeInOutCubic,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 8, bottom: 8),
+        child: TeXView(
+          child: TeXViewDocument(widget.text),
+          style: TeXViewStyle(
+            textAlign: TeXViewTextAlign.Left,
+            contentColor: DetailsTheme.body2.color,
+            fontStyle: TeXViewFontStyle(
+              fontFamily: DetailsTheme.body2.fontFamily,
+              fontSize: DetailsTheme.body2.fontSize.round(),
+              fontWeight: TeXViewFontWeight.w400,
+            ),
+          ),
         ),
       ),
     );
