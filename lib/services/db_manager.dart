@@ -32,7 +32,6 @@ class DatabaseManager {
       join(await getDatabasesPath(), DATABASE_NAME),
       // When the database is first created, create a table to store data.
       onCreate: (db, version) {
-        print("Creating database!");
         // Table for storing favourites
         db.execute(FavouritesDB.onCreate);
       },

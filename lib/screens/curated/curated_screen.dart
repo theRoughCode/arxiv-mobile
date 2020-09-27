@@ -32,19 +32,22 @@ class _CuratedListScreenState extends State<CuratedListScreen> {
   @override
   void initState() {
     super.initState();
-    init();
+    getData();
   }
 
-  // Retrieve favourited list and initial list of data
-  void init() async {
+  // Retrieve favourited articles from database
+  Future<void> getFavourites() async {
     final favourites = await FavouritesDB.getFavourites();
     favouritedList = {};
     favourites.forEach((id) => favouritedList[id] = true);
-    await getData();
   }
 
+  // Retrieve articles and mark as favourited if in favourited list
   Future<void> getData({int start, bool append = false}) async {
     ScrapeResults results;
+
+    // Update favourites list
+    await getFavourites();
 
     if (categoryFilterList[0].isSelected) {
       // All categories

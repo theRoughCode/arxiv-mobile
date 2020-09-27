@@ -9,7 +9,6 @@ class FavouritesDB {
   static Future<int> addFavourite(String articleId) async {
     final db = await dbManager.database;
     int id = await db.insert(tableName,  { 'id': articleId });
-    print(id);
     return id;
   }
 

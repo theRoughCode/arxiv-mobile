@@ -64,6 +64,14 @@ class ArxivScraper {
     final entry = xml.parse(response).findAllElements('entry').first;
     return Article.fromEntry(entry);
   }
+
+  // Fetch list of articles by ID
+  static Future<List<Article>> fetchArticlesById(List<String> idList) async {
+    final response = await ArxivQuery(idList: idList).fetch();
+    final entries = xml.parse(response).findAllElements('entry');
+    final articles = entries.map((e) => Article.fromEntry(e)).toList();
+    return articles;
+  }
 }
 
 void main(List<String> args) {

@@ -1,5 +1,6 @@
 import 'package:arxiv_mobile/screens/curated/curated_screen.dart';
 import 'package:arxiv_mobile/screens/explore/explore_screen.dart';
+import 'package:arxiv_mobile/screens/favourites/favourites_screen.dart';
 import 'package:arxiv_mobile/themes/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -17,10 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   static List<Widget> _screens = <Widget>[
     CuratedListScreen(controller: _curatedListController),
     ExploreScreen(),
-    Text(
-      'Favourites',
-      style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-    ),
+    FavouritesScreen(),
   ];
 
   void _onItemTapped(int index) {
