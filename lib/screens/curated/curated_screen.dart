@@ -1,7 +1,6 @@
 import 'package:arxiv_mobile/models/article.dart';
 import 'package:arxiv_mobile/models/curated_filters.dart';
-import 'package:arxiv_mobile/screens/article_details/article_details_screen.dart';
-import 'package:arxiv_mobile/screens/curated/components/article_card.dart';
+import 'package:arxiv_mobile/screens/article_list/article_list.dart';
 import 'package:arxiv_mobile/screens/curated/components/search_bar.dart';
 import 'package:arxiv_mobile/services/arxiv_scaper.dart';
 import 'package:arxiv_mobile/themes/curated_list_theme.dart';
@@ -18,9 +17,7 @@ class CuratedListScreen extends StatefulWidget {
   _CuratedListScreenState createState() => _CuratedListScreenState();
 }
 
-class _CuratedListScreenState extends State<CuratedListScreen>
-    with TickerProviderStateMixin {
-  AnimationController animationController;
+class _CuratedListScreenState extends State<CuratedListScreen> {
   String query;
   int numResults = 0;
   bool loading = true;
@@ -33,8 +30,6 @@ class _CuratedListScreenState extends State<CuratedListScreen>
 
   @override
   void initState() {
-    animationController = AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
     super.initState();
     getData();
   }
@@ -110,12 +105,6 @@ class _CuratedListScreenState extends State<CuratedListScreen>
   }
 
   @override
-  void dispose() {
-    animationController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Theme(
       data: CuratedListTheme.buildLightTheme(),
@@ -170,44 +159,9 @@ class _CuratedListScreenState extends State<CuratedListScreen>
     return RefreshIndicator(
       child: NotificationListener<ScrollNotification>(
         onNotification: _onScrollEnd,
-        child: ListView.builder(
-          itemCount: curatedList.length,
-          scrollDirection: Axis.vertical,
-          itemBuilder: (BuildContext context, int index) {
-            final int count = curatedList.length > 10 ? 10 : curatedList.length;
-            final Animation<double> animation =
-                Tween<double>(begin: 0.0, end: 1.0).animate(
-              CurvedAnimation(
-                parent: animationController,
-                curve: Interval(
-                  (1 / count) * index,
-                  1.0,
-                  curve: Curves.fastOutSlowIn,
-                ),
-              ),
-            );
-            animationController.forward();
-
-            final article = curatedList[index];
-
-            return ArticleCard(
-              callback: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ArticleDetailsScreen(
-                      article: article,
-                      onFavourite: () => onFavourite(article),
-                    ),
-                  ),
-                );
-              },
-              article: article,
-              animation: animation,
-              animationController: animationController,
-              onFavourite: () => onFavourite(article),
-            );
-          },
+        child: ArticleList(
+          articleList: curatedList,
+          onFavourite: onFavourite,
         ),
       ),
       onRefresh: () {
