@@ -1,8 +1,12 @@
+import 'package:arxiv_mobile/models/article.dart';
+import 'package:arxiv_mobile/models/favourites.dart';
 import 'package:arxiv_mobile/screens/curated/curated_screen.dart';
 import 'package:arxiv_mobile/screens/explore/explore_screen.dart';
 import 'package:arxiv_mobile/screens/favourites/favourites_screen.dart';
 import 'package:arxiv_mobile/themes/app_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key key}) : super(key: key);
@@ -18,7 +22,12 @@ class _MyHomePageState extends State<MyHomePage> {
   static List<Widget> _screens = <Widget>[
     CuratedListScreen(controller: _curatedListController),
     ExploreScreen(),
-    FavouritesScreen(),
+    Selector<FavouritesModel, List<Article>>(
+      selector: (_, model) => model.articles,
+      builder: (_, articles, __) => FavouritesScreen(
+        articles: articles,
+      ),
+    ),
   ];
 
   void _onItemTapped(int index) {
@@ -50,9 +59,12 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: IndexedStack(
-        children: _screens,
-        index: _selectedIndex,
+      body: ChangeNotifierProvider(
+        create: (context) => FavouritesModel(),
+        child: IndexedStack(
+          children: _screens,
+          index: _selectedIndex,
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[

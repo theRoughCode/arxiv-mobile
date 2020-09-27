@@ -1,13 +1,11 @@
 import 'package:arxiv_mobile/models/article.dart';
 import 'package:arxiv_mobile/models/curated_filters.dart';
-import 'package:arxiv_mobile/screens/article_list/article_list.dart';
+import 'package:arxiv_mobile/screens/curated/components/filter_bar.dart';
+import 'package:arxiv_mobile/screens/curated/components/results_list.dart';
 import 'package:arxiv_mobile/screens/curated/components/search_bar.dart';
 import 'package:arxiv_mobile/services/arxiv_scaper.dart';
-import 'package:arxiv_mobile/services/db_tables/favourites_db.dart';
 import 'package:arxiv_mobile/themes/curated_list_theme.dart';
 import 'package:flutter/material.dart';
-
-import 'components/filters_screen.dart';
 
 class CuratedListScreen extends StatefulWidget {
   final ScrollController controller;
@@ -23,7 +21,6 @@ class _CuratedListScreenState extends State<CuratedListScreen> {
   int numResults = 0;
   bool loading = true;
   List<Article> curatedList = [];
-  Map<String, bool> favouritedList = {};
   List<CuratedFilter> categoryFilterList = CuratedFilter.categoryList;
 
   DateTime startDate = DateTime.now();
@@ -35,19 +32,9 @@ class _CuratedListScreenState extends State<CuratedListScreen> {
     getData();
   }
 
-  // Retrieve favourited articles from database
-  Future<void> getFavourites() async {
-    final favourites = await FavouritesDB.getFavourites();
-    favouritedList = {};
-    favourites.forEach((id) => favouritedList[id] = true);
-  }
-
-  // Retrieve articles and mark as favourited if in favourited list
+  // Retrieve articles from ArXiv API
   Future<void> getData({int start, bool append = false}) async {
     ScrapeResults results;
-
-    // Update favourites list
-    await getFavourites();
 
     if (categoryFilterList[0].isSelected) {
       // All categories
@@ -62,10 +49,6 @@ class _CuratedListScreenState extends State<CuratedListScreen> {
       results = await ArxivScraper.fetchArticlesFromCategories(categories,
           search: query, start: start);
     }
-
-    results.articles.forEach((article) {
-      if (favouritedList.containsKey(article.id)) article.favourited = true;
-    });
 
     setState(() {
       numResults = results.numResults;
@@ -106,19 +89,6 @@ class _CuratedListScreenState extends State<CuratedListScreen> {
     getData();
   }
 
-  void onFavourite(Article article) {
-    setState(() {
-      article.favourited = !article.favourited;
-      if (article.favourited) {
-        favouritedList[article.id] = true;
-        FavouritesDB.addFavourite(article.id);
-      } else if (favouritedList.containsKey(article.id)) {
-        favouritedList.remove(article.id);
-        FavouritesDB.removeFavourite(article.id);
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -156,143 +126,18 @@ class _CuratedListScreenState extends State<CuratedListScreen> {
                       ),
                     ];
                   },
-                  body: getListUI(),
+                  body: ResultsList(
+                    results: curatedList,
+                    loading: loading,
+                    onScrollEnd: _onScrollEnd,
+                    onRefresh: () => getData(start: 0),
+                  ),
                 ),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-
-  Widget getListUI() {
-    if (curatedList.length == 0 && loading) {
-      return Center(child: CircularProgressIndicator());
-    }
-
-    return RefreshIndicator(
-      child: NotificationListener<ScrollNotification>(
-        onNotification: _onScrollEnd,
-        child: ArticleList(
-          articleList: curatedList,
-          onFavourite: onFavourite,
-        ),
-      ),
-      onRefresh: () {
-        return getData(start: 0);
-      },
-    );
-  }
-}
-
-class FilterBar extends SliverPersistentHeaderDelegate {
-  FilterBar(this.numArticles, this.filterList, this.onApply);
-
-  final int numArticles;
-  final List<CuratedFilter> filterList;
-  final Function(List<CuratedFilter>) onApply;
-
-  @override
-  double get maxExtent => 52.0;
-
-  @override
-  double get minExtent => 52.0;
-
-  @override
-  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) => true;
-
-  @override
-  Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Stack(
-      children: <Widget>[
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            height: 24,
-            decoration: BoxDecoration(
-              color: CuratedListTheme.buildLightTheme().backgroundColor,
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                    color: Colors.grey.withOpacity(0.2),
-                    offset: const Offset(0, -2),
-                    blurRadius: 8.0),
-              ],
-            ),
-          ),
-        ),
-        Container(
-          color: CuratedListTheme.buildLightTheme().backgroundColor,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: Text(
-                    '$numArticles articles found',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w100,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-                Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    focusColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    splashColor: Colors.grey.withOpacity(0.2),
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(4.0),
-                    ),
-                    onTap: () {
-                      FocusScope.of(context).requestFocus(FocusNode());
-                      Navigator.push<dynamic>(
-                        context,
-                        MaterialPageRoute<dynamic>(
-                            builder: (BuildContext context) => FiltersScreen(
-                                  filterList: filterList,
-                                  onApply: onApply,
-                                ),
-                            fullscreenDialog: true),
-                      );
-                    },
-                    child: Row(
-                      children: <Widget>[
-                        Text(
-                          'Filter',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w100,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: Icon(Icons.sort,
-                              color: CuratedListTheme.buildLightTheme()
-                                  .primaryColor),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Divider(
-            height: 1,
-          ),
-        )
-      ],
     );
   }
 }
