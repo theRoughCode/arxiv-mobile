@@ -3,6 +3,7 @@ import 'package:arxiv_mobile/models/curated_filters.dart';
 import 'package:arxiv_mobile/screens/article_list/article_list.dart';
 import 'package:arxiv_mobile/screens/curated/components/search_bar.dart';
 import 'package:arxiv_mobile/services/arxiv_scaper.dart';
+import 'package:arxiv_mobile/services/db_tables/favourites_db.dart';
 import 'package:arxiv_mobile/themes/curated_list_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -31,7 +32,15 @@ class _CuratedListScreenState extends State<CuratedListScreen> {
   @override
   void initState() {
     super.initState();
-    getData();
+    init();
+  }
+
+  // Retrieve favourited list and initial list of data
+  void init() async {
+    final favourites = await FavouritesDB.getFavourites();
+    favouritedList = {};
+    favourites.forEach((id) => favouritedList[id] = true);
+    await getData();
   }
 
   Future<void> getData({int start, bool append = false}) async {
@@ -97,10 +106,13 @@ class _CuratedListScreenState extends State<CuratedListScreen> {
   void onFavourite(Article article) {
     setState(() {
       article.favourited = !article.favourited;
-      if (article.favourited)
+      if (article.favourited) {
         favouritedList[article.id] = true;
-      else if (favouritedList.containsKey(article.id))
+        FavouritesDB.addFavourite(article.id);
+      } else if (favouritedList.containsKey(article.id)) {
         favouritedList.remove(article.id);
+        FavouritesDB.removeFavourite(article.id);
+      }
     });
   }
 
