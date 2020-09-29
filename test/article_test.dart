@@ -6,8 +6,8 @@ void main() {
   test('Conversion from JSON mapping', () {
     final json = {
       'id': 'cond-mat/0002322v1',
-      'updated': DateTime.parse('2000-02-21T11:53:06Z'),
-      'published': DateTime.parse('2000-02-21T11:54:06Z'),
+      'updated': '2000-02-21T11:53:06Z',
+      'published': '2000-02-21T11:54:06Z',
       'title':
           'First-principles calculations of hot-electron lifetimes in metals',
       'summary':
@@ -22,7 +22,7 @@ void main() {
       'pdfUrl': 'http://arxiv.org/pdf/cond-mat/0002322v1',
     };
 
-    final article = Article.fromJson(json);
+    final article = Article.fromMap(json);
 
     expect(article.id, 'cond-mat/0002322v1');
     expect(article.updated, DateTime.parse('2000-02-21T11:53:06Z'));

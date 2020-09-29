@@ -1,8 +1,7 @@
 import 'dart:collection';
 
 import 'package:arxiv_mobile/models/article.dart';
-import 'package:arxiv_mobile/services/arxiv_scaper.dart';
-import 'package:arxiv_mobile/services/db_tables/favourites_db.dart';
+import 'package:arxiv_mobile/services/db_tables/articles_db.dart';
 import 'package:flutter/foundation.dart';
 
 class FavouritesModel extends ChangeNotifier {
@@ -19,42 +18,43 @@ class FavouritesModel extends ChangeNotifier {
 
   Future<void> updateFavourites() async {
     // Update list of ids
-    final updatedIds = await FavouritesDB.getFavourites();
-    _ids = Set.from(updatedIds);
-    notifyListeners();
-
-    // Retrieve articles
-    final updatedArticles = await ArxivScraper.fetchArticlesById(updatedIds);
+    final articles = await ArticlesDB.getFavourites();
     _articles = Map.fromIterable(
-      updatedArticles,
+      articles,
       key: (article) => article.id,
-      value: (article) => article..favourited = true,
+      value: (article) => article,
     );
+    _ids = Set.from(_articles.keys);
     notifyListeners();
   }
 
   void onFavourite(Article article) {
     article.favourited = !article.favourited;
     if (article.favourited)
-      add(article.id);
+      add(article);
     else
-      remove(article.id);
+      remove(article);
   }
 
-  void add(String id) async {
+  void add(Article article) async {
+    final id = article.id;
+    article.favourited = true;
+
     _ids.add(id);
+    _articles[id] = article;
     notifyListeners();
 
-    FavouritesDB.addFavourite(id);
-    final article = await ArxivScraper.fetchArticleById(id);
-    _articles[id] = article..favourited = true;
-    notifyListeners();
+    ArticlesDB.addFavourite(article);
   }
 
-  void remove(String id) {
+  void remove(Article article) {
+    final id = article.id;
+    article.favourited = false;
+
     _ids.remove(id);
     _articles.remove(id);
-    FavouritesDB.removeFavourite(id);
     notifyListeners();
+
+    ArticlesDB.removeFavourite(id);
   }
 }

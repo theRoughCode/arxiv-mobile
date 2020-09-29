@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:arxiv_mobile/services/db_tables/favourites_db.dart';
+import 'package:arxiv_mobile/services/db_tables/articles_db.dart';
 import 'package:async/async.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -32,8 +32,8 @@ class DatabaseManager {
       join(await getDatabasesPath(), DATABASE_NAME),
       // When the database is first created, create a table to store data.
       onCreate: (db, version) {
-        // Table for storing favourites
-        db.execute(FavouritesDB.onCreate);
+        // Table for storing articles
+        db.execute(ArticlesDB.onCreate);
       },
       // Set the version. This executes the onCreate function and provides a
       // path to perform database upgrades and downgrades.

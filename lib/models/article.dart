@@ -14,39 +14,65 @@ class Article {
   final List<String> categories;
   final String articleUrl;
   final String pdfUrl;
+  final String downloadPath;
+  bool downloaded = false;
   bool favourited = false;
 
   Article(
-      this.id,
-      this.updated,
-      this.published,
-      this.title,
-      this.summary,
-      this.authors,
-      this.doi,
-      this.doiUrl,
-      this.comment,
-      this.journalRef,
-      this.categories,
-      this.articleUrl,
-      this.pdfUrl,
-      {this.favourited = false});
+    this.id,
+    this.updated,
+    this.published,
+    this.title,
+    this.summary,
+    this.authors,
+    this.doi,
+    this.doiUrl,
+    this.comment,
+    this.journalRef,
+    this.categories,
+    this.articleUrl,
+    this.pdfUrl,
+    this.downloadPath, {
+    this.favourited,
+    this.downloaded,
+  });
 
-  Article.fromJson(Map<String, dynamic> json)
+  Article.fromMap(Map<String, dynamic> json)
       : id = json['id'],
-        updated = json['updated'],
-        published = json['published'],
+        updated = _parseDateTime(json['updated']),
+        published = _parseDateTime(json['published']),
         title = json['title'],
         summary = json['summary'],
-        authors = json['authors'],
+        authors = _parseList(json['authors']),
         doi = json['doi'],
         doiUrl = json['doiUrl'],
         comment = json['comment'],
         journalRef = json['journalRef'],
-        categories = json['categories'],
+        categories = _parseList(json['categories']),
         articleUrl = json['articleUrl'],
         pdfUrl = json['pdfUrl'],
-        favourited = false;
+        downloadPath = json['downloadedPath'],
+        favourited = _parseBool(json['favourited']),
+        downloaded = _parseBool(json['downloaded']);
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'updated': updated.toIso8601String(),
+        'published': published.toIso8601String(),
+        'title': title,
+        'summary': summary,
+        'authors': authors.join(','),
+        'doi': doi,
+        'doiUrl': doiUrl,
+        'comment': comment,
+        'journalRef': journalRef,
+        'categories': categories.join(','),
+        'articleUrl': articleUrl,
+        'pdfUrl': pdfUrl,
+        'downloadPath': downloadPath,
+        'favourited': favourited ? 1 : 0,
+        'downloaded': downloaded ? 1 : 0,
+      };
 
   factory Article.fromEntry(XmlElement entry) {
     var articleUrl, pdfUrl, doiUrl;
@@ -98,17 +124,25 @@ class Article {
       'pdfUrl': pdfUrl,
     };
 
-    return Article.fromJson(json);
+    return Article.fromMap(json);
   }
+
+  static DateTime _parseDateTime(dynamic dt) =>
+      (dt is String) ? DateTime.parse(dt) : dt;
+
+  static List<String> _parseList(dynamic list) =>
+      (list is String) ? list.split(',') : list;
+
+  static bool _parseBool(dynamic b) => (b is int) ? (b == 1) : b ?? false;
+
+  static String _getTextFromElements(Iterable<XmlElement> elems) =>
+      (elems.length == 0 || elems.first == null)
+          ? null
+          : elems.first.text
+              .trim()
+              .replaceAll('\n', ' ')
+              .replaceAll(new RegExp('\\s\\s+'), ' ');
 }
 
 String replaceLaTeXDelims(String text) => text.replaceAllMapped(
     new RegExp(r"\$(.*?)\$"), (Match m) => "\\(${m[1]}\\)");
-
-String _getTextFromElements(Iterable<XmlElement> elems) =>
-    (elems.length == 0 || elems.first == null)
-        ? null
-        : elems.first.text
-            .trim()
-            .replaceAll('\n', ' ')
-            .replaceAll(new RegExp('\\s\\s+'), ' ');
