@@ -94,4 +94,37 @@ class ArticlesDB {
     return await db.update(tableName, {'favourited': 0},
         where: 'id = ?', whereArgs: [articleId]);
   }
+
+  static Future<List<Article>> getDownloads() async {
+    final db = await dbManager.database;
+    List<Map> records =
+        await db.query(tableName, where: 'downloaded = ?', whereArgs: [1]);
+    List<Article> articles =
+        records.map<Article>((r) => Article.fromMap(r)).toList();
+    return articles;
+  }
+
+  static Future<int> addDownload(Article article) async {
+    final db = await dbManager.database;
+    // Try updating if row exists
+    var id = await db.update(tableName, {'downloaded': 1},
+        where: 'id = ?', whereArgs: [article.id]);
+    if (id == 0) id = await addArticle(article);
+    return id;
+  }
+
+  static Future<int> removeDownload(String articleId) async {
+    final article = await getArticle(articleId);
+
+    // Article does not exist
+    if (article == null) return 0;
+
+    // Article is not downloaded, so remove from db
+    if (!article.downloaded) return await removeArticle(articleId);
+
+    // Otherwise, update row
+    final db = await dbManager.database;
+    return await db.update(tableName, {'downloaded': 0},
+        where: 'id = ?', whereArgs: [articleId]);
+  }
 }

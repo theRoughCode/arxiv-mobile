@@ -1,7 +1,8 @@
 import 'package:arxiv_mobile/models/article.dart';
+import 'package:arxiv_mobile/models/downloads.dart';
 import 'package:arxiv_mobile/models/favourites.dart';
 import 'package:arxiv_mobile/screens/curated/curated_screen.dart';
-import 'package:arxiv_mobile/screens/explore/explore_screen.dart';
+import 'package:arxiv_mobile/screens/downloads/downloads_screen.dart';
 import 'package:arxiv_mobile/screens/favourites/favourites_screen.dart';
 import 'package:arxiv_mobile/themes/app_theme.dart';
 import 'package:flutter/foundation.dart';
@@ -21,10 +22,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   static List<Widget> _screens = <Widget>[
     CuratedListScreen(controller: _curatedListController),
-    ExploreScreen(),
+    // ExploreScreen(),
     Selector<FavouritesModel, List<Article>>(
       selector: (_, model) => model.articles,
       builder: (_, articles, __) => FavouritesScreen(
+        articles: articles,
+      ),
+    ),
+    Selector<DownloadsModel, List<Article>>(
+      selector: (_, model) => model.articles,
+      builder: (_, articles, __) => DownloadsScreen(
         articles: articles,
       ),
     ),
@@ -59,8 +66,11 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: ChangeNotifierProvider(
-        create: (context) => FavouritesModel(),
+      body: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => FavouritesModel()),
+          ChangeNotifierProvider(create: (context) => DownloadsModel()),
+        ],
         child: IndexedStack(
           children: _screens,
           index: _selectedIndex,
@@ -70,15 +80,19 @@ class _MyHomePageState extends State<MyHomePage> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            title: Text('For You'),
+            title: Text('Browse'),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            title: Text('Explore'),
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.search),
+          //   title: Text('Explore'),
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.favorite),
             title: Text('Favourites'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.file_download),
+            title: Text('Downloads'),
           ),
         ],
         currentIndex: _selectedIndex,
