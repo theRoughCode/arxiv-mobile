@@ -1,20 +1,19 @@
 import 'package:arxiv_mobile/models/article.dart';
 import 'package:arxiv_mobile/models/category.dart';
+import 'package:arxiv_mobile/models/favourites.dart';
 import 'package:arxiv_mobile/screens/article_details/components/article_description.dart';
 import 'package:arxiv_mobile/screens/article_details/components/pdf_viewer.dart';
 import 'package:arxiv_mobile/themes/details_theme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ArticleDetailsScreen extends StatelessWidget {
   final Article article;
-  final VoidCallback onFavourite;
 
-  ArticleDetailsScreen(
-      {Key key, @required this.article, @required this.onFavourite})
-      : super(key: key);
+  ArticleDetailsScreen({Key key, @required this.article}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -76,14 +75,13 @@ class ArticleDetailsScreen extends StatelessWidget {
               ),
             ),
           ),
-          IconButton(
-            icon: Icon(
-                article.favourited ? Icons.favorite : Icons.favorite_border,
-                color: DetailsTheme.nearlyBlue),
-            onPressed: () {
-              onFavourite();
-              (context as Element).markNeedsBuild();
-            },
+          Consumer<FavouritesModel>(
+            builder: (_, favouritesModel, __) => IconButton(
+              icon: Icon(
+                  article.favourited ? Icons.favorite : Icons.favorite_border,
+                  color: DetailsTheme.nearlyBlue),
+              onPressed: () => favouritesModel.onFavourite(article),
+            ),
           ),
         ],
       ),

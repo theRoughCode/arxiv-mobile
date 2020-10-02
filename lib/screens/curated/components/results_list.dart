@@ -32,9 +32,10 @@ class ResultsList extends StatelessWidget {
           builder: (_, ids, __) => ArticleList(
             articleList: results
                 .map(
-                    (article) => article..favourited = ids.contains(article.id))
+                  (article) => article..favourited = ids.contains(article.id),
+                )
                 .toList(),
-            onFavourite: Provider.of<FavouritesModel>(context).onFavourite,
+            renderFavourite: true,
           ),
         ),
       ),

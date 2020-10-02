@@ -40,7 +40,9 @@ class DownloadsModel extends ChangeNotifier {
     final id = article.id;
     article.downloaded = true;
 
-    _ids.add(id);
+    // Make sure to create copy and not mutate original
+    _ids = _ids.union({id});
+    _articles = Map<String, Article>.from(_articles);
     _articles[id] = article;
     notifyListeners();
 
@@ -51,8 +53,9 @@ class DownloadsModel extends ChangeNotifier {
     final id = article.id;
     article.downloaded = false;
 
-    _ids.remove(id);
-    _articles.remove(id);
+    _ids = _ids.difference({id});
+    _articles = Map<String, Article>.from(_articles)
+      ..removeWhere((key, value) => key == id);
     notifyListeners();
 
     ArticlesDB.removeDownload(id);

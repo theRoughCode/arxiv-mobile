@@ -12,16 +12,25 @@ class FavouritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      child: NotificationListener<ScrollNotification>(
-        child: ArticleList(
-          articleList: articles,
-          onFavourite:
-              Provider.of<FavouritesModel>(context).onFavourite,
+    return Consumer<FavouritesModel>(
+      builder: (_, favouritesModel, __) => RefreshIndicator(
+        child: NotificationListener<ScrollNotification>(
+          child: ArticleList(
+            articleList: articles,
+            onDismiss: (article) {
+              favouritesModel.remove(article);
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text('${article.id} removed!'),
+                action: SnackBarAction(
+                  label: 'Undo',
+                  onPressed: () => favouritesModel.add(article),
+                ),
+              ));
+            },
+          ),
         ),
+        onRefresh: favouritesModel.updateFavourites,
       ),
-      onRefresh:
-          Provider.of<FavouritesModel>(context).updateFavourites,
     );
   }
 }

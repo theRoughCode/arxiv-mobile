@@ -6,17 +6,22 @@ import 'package:flutter/material.dart';
 
 class ArticleList extends StatefulWidget {
   final List<Article> articleList;
-  final Function(Article) onFavourite;
+  final Function(Article) onDismiss;
+  final bool renderFavourite;
 
-  const ArticleList(
-      {Key key, this.articleList, this.onFavourite})
-      : super(key: key);
+  const ArticleList({
+    Key key,
+    @required this.articleList,
+    this.onDismiss,
+    this.renderFavourite = false,
+  }) : super(key: key);
 
   @override
   _ArticleListState createState() => _ArticleListState();
 }
 
-class _ArticleListState extends State<ArticleList> with TickerProviderStateMixin {
+class _ArticleListState extends State<ArticleList>
+    with TickerProviderStateMixin {
   AnimationController animationController;
 
   @override
@@ -31,14 +36,15 @@ class _ArticleListState extends State<ArticleList> with TickerProviderStateMixin
     animationController.dispose();
     super.dispose();
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
       itemCount: widget.articleList.length,
       scrollDirection: Axis.vertical,
       itemBuilder: (BuildContext context, int index) {
-        final int count = widget.articleList.length > 10 ? 10 : widget.articleList.length;
+        final int count =
+            widget.articleList.length > 10 ? 10 : widget.articleList.length;
         final Animation<double> animation =
             Tween<double>(begin: 0.0, end: 1.0).animate(
           CurvedAnimation(
@@ -53,23 +59,23 @@ class _ArticleListState extends State<ArticleList> with TickerProviderStateMixin
         animationController.forward();
 
         final article = widget.articleList[index];
+        final onDismiss =
+            (widget.onDismiss != null) ? () => widget.onDismiss(article) : null;
 
         return ArticleCard(
           callback: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ArticleDetailsScreen(
-                  article: article,
-                  onFavourite: () => widget.onFavourite(article),
-                ),
+                builder: (context) => ArticleDetailsScreen(article: article),
               ),
             );
           },
           article: article,
           animation: animation,
           animationController: animationController,
-          onFavourite: () => widget.onFavourite(article),
+          onDismiss: onDismiss,
+          renderFavourite: widget.renderFavourite,
         );
       },
     );

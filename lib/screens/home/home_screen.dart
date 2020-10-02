@@ -66,15 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Colors.white,
         centerTitle: true,
       ),
-      body: MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (context) => FavouritesModel()),
-          ChangeNotifierProvider(create: (context) => DownloadsModel()),
-        ],
-        child: IndexedStack(
-          children: _screens,
-          index: _selectedIndex,
-        ),
+      body: IndexedStack(
+        children: _screens,
+        index: _selectedIndex,
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[

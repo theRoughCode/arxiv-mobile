@@ -1,6 +1,5 @@
 import 'package:arxiv_mobile/models/article.dart';
 import 'package:arxiv_mobile/models/downloads.dart';
-import 'package:arxiv_mobile/models/favourites.dart';
 import 'package:arxiv_mobile/screens/article_list/article_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +16,21 @@ class DownloadsScreen extends StatelessWidget {
       child: NotificationListener<ScrollNotification>(
         child: ArticleList(
           articleList: articles,
-          onFavourite:
-              Provider.of<FavouritesModel>(context).onFavourite,
+          onDismiss: (article) {
+            Provider.of<DownloadsModel>(context, listen: false).remove(article);
+            Scaffold.of(context).showSnackBar(SnackBar(
+              content: Text('${article.id} deleted!'),
+              action: SnackBarAction(
+                label: 'Undo',
+                onPressed: () =>
+                    Provider.of<DownloadsModel>(context, listen: false)
+                        .add(article),
+              ),
+            ));
+          },
         ),
       ),
-      onRefresh:
-          Provider.of<DownloadsModel>(context).updateDownloads,
+      onRefresh: Provider.of<DownloadsModel>(context).updateDownloads,
     );
   }
 }
