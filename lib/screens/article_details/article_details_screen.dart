@@ -9,6 +9,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ArticleDetailsScreen extends StatelessWidget {
@@ -106,13 +107,22 @@ class ArticleDetailsScreen extends StatelessWidget {
               ),
             ),
           ),
-          Consumer<FavouritesModel>(
-            builder: (_, favouritesModel, __) => IconButton(
-              icon: Icon(
-                  article.favourited ? Icons.favorite : Icons.favorite_border,
-                  color: DetailsTheme.nearlyBlue),
-              onPressed: () => favouritesModel.onFavourite(article),
-            ),
+          Row(
+            children: <Widget>[
+              IconButton(
+                icon: Icon(Icons.share, color: DetailsTheme.nearlyBlue),
+                onPressed: () => Share.share(article.articleUrl),
+              ),
+              Consumer<FavouritesModel>(
+                builder: (_, favouritesModel, __) => IconButton(
+                  icon: Icon(
+                    article.favourited ? Icons.favorite : Icons.favorite_border,
+                    color: DetailsTheme.nearlyBlue,
+                  ),
+                  onPressed: () => favouritesModel.onFavourite(article),
+                ),
+              ),
+            ],
           ),
         ],
       ),
