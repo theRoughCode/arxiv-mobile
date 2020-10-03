@@ -12,25 +12,25 @@ class DownloadsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      child: NotificationListener<ScrollNotification>(
-        child: ArticleList(
-          articleList: articles,
-          onDismiss: (article) {
-            Provider.of<DownloadsModel>(context, listen: false).remove(article);
-            Scaffold.of(context).showSnackBar(SnackBar(
-              content: Text('${article.id} deleted!'),
-              action: SnackBarAction(
-                label: 'Undo',
-                onPressed: () =>
-                    Provider.of<DownloadsModel>(context, listen: false)
-                        .add(article),
-              ),
-            ));
-          },
+     return Consumer<DownloadsModel>(
+      builder: (_, downloadsModel, __) => RefreshIndicator(
+        child: NotificationListener<ScrollNotification>(
+          child: ArticleList(
+            articleList: articles,
+            onDismiss: (article) {
+              downloadsModel.remove(article);
+              Scaffold.of(context).showSnackBar(SnackBar(
+                content: Text('${article.id} deleted!'),
+                action: SnackBarAction(
+                  label: 'Undo',
+                  onPressed: () => downloadsModel.add(article),
+                ),
+              ));
+            },
+          ),
         ),
+        onRefresh: downloadsModel.updateDownloads,
       ),
-      onRefresh: Provider.of<DownloadsModel>(context).updateDownloads,
     );
   }
 }
