@@ -36,12 +36,8 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
           body: DrawerUserController(
             screenIndex: drawerIndex,
             drawerWidth: MediaQuery.of(context).size.width * 0.75,
-            onDrawerCall: (DrawerIndex drawerIndexdata) {
-              changeIndex(drawerIndexdata);
-              //callback from drawer for replace screen as user need with passing DrawerIndex(Enum index)
-            },
+            onDrawerCall: (DrawerIndex drawerIndexdata) => changeIndex(drawerIndexdata),
             screenView: screenView,
-            //we replace screen view as we need on navigate starting screens like MyHomePage, HelpScreen, FeedbackScreen, etc...
           ),
         ),
       ),
@@ -67,8 +63,6 @@ class _NavigationHomeScreenState extends State<NavigationHomeScreen> {
         setState(() {
           screenView = InviteFriend();
         });
-      } else {
-        // do in your way......
       }
     }
   }
