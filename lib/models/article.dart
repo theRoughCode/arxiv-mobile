@@ -51,7 +51,7 @@ class Article {
         categories = _parseList(json['categories']),
         articleUrl = json['articleUrl'],
         pdfUrl = json['pdfUrl'],
-        downloadPath = json['downloadedPath'],
+        downloadPath = json['downloadPath'],
         favourited = _parseBool(json['favourited']),
         downloaded = _parseBool(json['downloaded']);
 

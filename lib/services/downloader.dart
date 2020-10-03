@@ -6,7 +6,10 @@ import 'package:path_provider/path_provider.dart';
 class Downloader {
   static Future<String> getPath(String articleId) async {
     final dir = await getApplicationDocumentsDirectory();
-    return '${dir.path}/$articleId.pdf';
+    // We need to include this hack because the PDF Viewer saves a copy of
+    // the PDF file with the characters in the file name after the last '.'.
+    final fileName = articleId.replaceAll('.', '-');
+    return '${dir.path}/$fileName.pdf';
   }
 
   static Future<String> downloadArticle(String articleId, String url) async {

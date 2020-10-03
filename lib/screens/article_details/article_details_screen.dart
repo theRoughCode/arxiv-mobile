@@ -221,7 +221,12 @@ class ArticleDetailsScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => PdfViewerScreen(
-                          title: article.id, url: article.pdfUrl),
+                        title: article.id,
+                        url: (article.downloaded)
+                            ? article.downloadPath
+                            : article.pdfUrl,
+                        isDownloaded: article.downloaded,
+                      ),
                     ),
                   );
                 },
