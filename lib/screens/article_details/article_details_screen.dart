@@ -1,5 +1,6 @@
 import 'package:arxiv_mobile/models/article.dart';
 import 'package:arxiv_mobile/models/category.dart';
+import 'package:arxiv_mobile/models/downloads.dart';
 import 'package:arxiv_mobile/models/favourites.dart';
 import 'package:arxiv_mobile/screens/article_details/components/article_description.dart';
 import 'package:arxiv_mobile/screens/article_details/components/pdf_viewer.dart';
@@ -14,6 +15,36 @@ class ArticleDetailsScreen extends StatelessWidget {
   final Article article;
 
   ArticleDetailsScreen({Key key, @required this.article}) : super(key: key);
+
+  Future<void> onDownload(
+    BuildContext context,
+    DownloadsModel model,
+    bool isDownloaded,
+  ) async {
+    final text1 = (isDownloaded)
+        ? "Deleting ${article.id}..."
+        : "Downloading ${article.id}...";
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text(text1),
+      action: SnackBarAction(
+        label: 'Dismiss',
+        onPressed: () => Scaffold.of(context).hideCurrentSnackBar(),
+      ),
+    ));
+
+    await model.onDownload(article);
+    Scaffold.of(context).hideCurrentSnackBar();
+
+    final text2 =
+        (isDownloaded) ? "${article.id} deleted!" : "${article.id} downloaded!";
+    Scaffold.of(context).showSnackBar(SnackBar(
+      content: Text(text2),
+      action: SnackBarAction(
+        label: 'Dismiss',
+        onPressed: () => Scaffold.of(context).hideCurrentSnackBar(),
+      ),
+    ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -173,26 +204,7 @@ class ArticleDetailsScreen extends StatelessWidget {
           Container(
             width: 48,
             height: 48,
-            child: OutlineButton(
-              onPressed: () => Scaffold.of(context).showSnackBar(SnackBar(
-                content: Text("Downloading ${article.id}..."),
-                action: SnackBarAction(
-                  label: 'Dismiss',
-                  onPressed: () => Scaffold.of(context).hideCurrentSnackBar(),
-                ),
-              )),
-              color: DetailsTheme.nearlyWhite,
-              splashColor: DetailsTheme.nearlyBlue.withOpacity(0.2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.0),
-              ),
-              padding: EdgeInsets.all(0),
-              child: Icon(
-                Icons.file_download,
-                color: DetailsTheme.nearlyBlue,
-                size: 26,
-              ),
-            ),
+            child: getDownloadButton(context),
           ),
           const SizedBox(
             width: 16,
@@ -229,4 +241,22 @@ class ArticleDetailsScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget getDownloadButton(BuildContext context) => Consumer<DownloadsModel>(
+        builder: (_, downloadsModel, __) => OutlineButton(
+          onPressed: () =>
+              onDownload(context, downloadsModel, article.downloaded),
+          color: DetailsTheme.nearlyWhite,
+          splashColor: DetailsTheme.nearlyBlue.withOpacity(0.2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          padding: EdgeInsets.all(0),
+          child: Icon(
+            (article.downloaded) ? Icons.delete : Icons.file_download,
+            color: DetailsTheme.nearlyBlue,
+            size: 26,
+          ),
+        ),
+      );
 }

@@ -105,9 +105,11 @@ class ArticlesDB {
   }
 
   static Future<int> addDownload(Article article) async {
+    assert(article.downloadPath != null && article.downloadPath.length > 0);
     final db = await dbManager.database;
     // Try updating if row exists
-    var id = await db.update(tableName, {'downloaded': 1},
+    var id = await db.update(
+        tableName, {'downloaded': 1, 'downloadPath': article.downloadPath},
         where: 'id = ?', whereArgs: [article.id]);
     if (id == 0) id = await addArticle(article);
     return id;
@@ -124,7 +126,7 @@ class ArticlesDB {
 
     // Otherwise, update row
     final db = await dbManager.database;
-    return await db.update(tableName, {'downloaded': 0},
+    return await db.update(tableName, {'downloaded': 0, 'downloadPath': null},
         where: 'id = ?', whereArgs: [articleId]);
   }
 }

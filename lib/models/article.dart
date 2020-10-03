@@ -14,7 +14,7 @@ class Article {
   final List<String> categories;
   final String articleUrl;
   final String pdfUrl;
-  final String downloadPath;
+  String downloadPath;
   bool downloaded = false;
   bool favourited = false;
 

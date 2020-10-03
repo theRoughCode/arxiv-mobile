@@ -5,14 +5,14 @@ import 'package:arxiv_mobile/services/db_tables/articles_db.dart';
 import 'package:flutter/foundation.dart';
 
 class FavouritesModel extends ChangeNotifier {
-  Set<String> _ids = {};
+  HashSet<String> _ids = HashSet();
   Map<String, Article> _articles = {};
 
   FavouritesModel() {
     updateFavourites();
   }
 
-  Set<String> get ids => _ids;
+  HashSet<String> get ids => _ids;
   UnmodifiableListView<Article> get articles =>
       UnmodifiableListView(_articles.values.toList());
 
@@ -24,7 +24,7 @@ class FavouritesModel extends ChangeNotifier {
       key: (article) => article.id,
       value: (article) => article,
     );
-    _ids = Set.from(_articles.keys);
+    _ids = HashSet.from(_articles.keys);
     notifyListeners();
   }
 
@@ -41,7 +41,8 @@ class FavouritesModel extends ChangeNotifier {
     article.favourited = true;
 
     // Make sure to create copy and not mutate original
-    _ids = _ids.union({id});
+    _ids = HashSet.from(_ids);
+    _ids.add(id);
     _articles = Map<String, Article>.from(_articles);
     _articles[id] = article;
     notifyListeners();
@@ -53,9 +54,9 @@ class FavouritesModel extends ChangeNotifier {
     final id = article.id;
     article.favourited = false;
 
-    _ids = _ids.difference({id});
-    _articles = Map<String, Article>.from(_articles)
-      ..removeWhere((key, value) => key == id);
+    _ids = HashSet.from(_ids);
+    _ids.remove(id);
+    _articles = Map<String, Article>.from(_articles)..remove(id);
     notifyListeners();
 
     ArticlesDB.removeFavourite(id);
