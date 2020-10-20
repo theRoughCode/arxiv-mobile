@@ -1,4 +1,4 @@
-package com.example.arxiv_mobile
+package com.TheRoughCode.arxiv_mobile
 
 import io.flutter.embedding.android.FlutterActivity
 
